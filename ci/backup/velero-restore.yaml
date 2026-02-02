@@ -1,0 +1,58 @@
+# Velero 복원 설정
+# PostgreSQL 백업에서 복원
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: devops-postgres-restore
+  namespace: velero
+  labels:
+    app: postgres
+    component: database
+    environment: devops
+spec:
+  # 복원할 백업 이름
+  backupName: devops-postgres-backup
+  
+  # 복원할 네임스페이스 매핑
+  includedNamespaces:
+  - devops
+  
+  # 복원할 리소스 타입
+  includedResources:
+  - pods
+  - persistentvolumes
+  - persistentvolumeclaims
+  - statefulsets
+  - secrets
+  - configmaps
+  - services
+  
+  # 클러스터 스코프 리소스 포함
+  includeClusterResources: auto
+  
+  # 네임스페이스 매핑 (선택사항)
+  namespaceMapping:
+    # devops: devops-restored
+  
+  # 라벨 선택자 (선택사항)
+  # labelSelector:
+  #   matchLabels:
+  #     app: postgres
+  
+  # 기존 리소스 정책
+  existingResourcePolicy: update
+  
+  # 볼륨 복원 설정
+  restorePVs: true
+  
+  # 타임아웃 설정
+  itemOperationTimeout: 4h0m0s
+  
+  # 메타데이터
+  metadata:
+    labels:
+      restore-type: postgres
+      environment: devops
+      restored-by: velero-restore-script
+    annotations:
+      description: "PostgreSQL database restore with PV for devops namespace"

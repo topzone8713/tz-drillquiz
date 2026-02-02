@@ -1,0 +1,415 @@
+---
+description: Frontend development rules for Vue.js, JavaScript, i18n, and responsive design
+globs: ["src/**/*.vue", "src/**/*.js", "public/**/*"]
+alwaysApply: false
+---
+
+# DrillQuiz Frontend Development Rules
+
+## Technology Stack
+- **Framework**: Vue.js 2.6.14
+- **Build Tool**: Vue CLI
+- **CSS Framework**: Tailwind CSS, Bootstrap 5.3.2
+- **i18n**: Vue i18n 8.28.2
+- **HTTP Client**: Axios
+- **Date/Time**: moment.js, moment-timezone
+- **Charts**: Chart.js, Plotly.js
+
+## Code Style
+- **JavaScript Style**: ESLint 규칙 준수
+- **Vue Style**: Vue.js 스타일 가이드 준수
+- **Component Naming**: PascalCase (예: `TutorCard.vue`)
+- **File Naming**: kebab-case (예: `tutor-list.vue`)
+
+## Internationalization (i18n)
+
+### Translation Keys
+- **절대 하드코딩 금지**: 모든 텍스트는 `$t('key')` 사용
+- **Fallback 금지**: `$t('key') || '한국어 텍스트'` 사용 금지
+- **서버 번역 우선**: 서버에서 받은 번역 메시지 우선 사용
+
+### Translation Usage
+```vue
+<!-- ✅ 올바른 사용 -->
+<p>{{ $t('auth.info.resendEmailAvailable') }}</p>
+<button>{{ $t('auth.resendEmail') }}</button>
+
+<!-- ❌ 잘못된 사용 -->
+<p>{{ $t('auth.info.resendEmailAvailable') || '이메일이 인증되지 않았습니다...' }}</p>
+```
+
+### Error Message Priority
+```javascript
+// 1. 서버 번역 메시지 (우선)
+// 2. 프론트엔드 번역 키
+// 3. 하드코딩된 텍스트는 절대 사용하지 않음
+
+catch (error) {
+  let errorMessage = this.$t('auth.error.loginError') // 기본값
+  
+  if (error.response?.data) {
+    errorMessage = error.response.data.detail || 
+                   error.response.data.error || 
+                   errorMessage
+  }
+  
+  this.$emit('show-notification', errorMessage, 'danger')
+}
+```
+
+## Timezone Handling
+
+### Display Format
+- 모든 시간은 사용자 타임존으로 변환하여 표시
+- UTC 타임스탬프를 받아서 moment-timezone으로 변환
+- ISO 8601 형식: `2025-12-02T09:00:00+00:00`
+
+### Vue Filters
+```javascript
+Vue.filter('datetime', function(value, format = 'YYYY-MM-DD HH:mm') {
+  if (!value) return ''
+  const userTimezone = localStorage.getItem('user_timezone') || 'UTC'
+  return moment.utc(value).tz(userTimezone).format(format)
+})
+```
+
+## Responsive Design
+
+### Tailwind CSS Breakpoints
+- `sm`: 640px
+- `md`: 768px
+- `lg`: 1024px
+- `xl`: 1280px
+
+### Mobile-First Approach
+```vue
+<!-- 모바일: 1열, 데스크톱: 2열 -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+</div>
+```
+
+### Overflow Prevention
+- 모든 input, textarea에 `max-w-full box-border` 추가
+- flex 컨테이너에 `overflow-x-hidden` 추가
+- 버튼에 `min-w-0 flex-shrink-0` 추가 (필요시)
+
+## Learning Mode Subscription UI
+
+### Payment Information Hiding Rule
+- **Learning 모드(`/learning/*`) 또는 네이티브 앱(iOS/Android)에서는 결제 관련 정보를 숨김**
+  - 구독 모달에서 다음 정보를 숨김:
+    - 구독료(subscription_price)
+    - 결제 방법(payment method)
+    - 지갑 잔액(wallet balance)
+    - 잔액 부족 경고 메시지
+  - 대신 "구독 후 튜터의 모든 학습 콘텐츠를 이용할 수 있습니다." 안내 메시지 표시
+- **버튼 텍스트 변경:**
+  - Learning 모드 또는 네이티브 앱: "멤버되기" 버튼
+  - 일반 모드(컨설팅): "구독 확인" 버튼
+- **구현 방법:**
+  ```javascript
+  computed: {
+    isLearningMode() {
+      return this.$route.path.startsWith('/learning')
+    },
+    isNativeApp() {
+      if (typeof window !== 'undefined' && window.Capacitor) {
+        try {
+          if (typeof window.Capacitor.isNativePlatform === 'function') {
+            return window.Capacitor.isNativePlatform()
+          }
+        } catch (error) {
+          return false
+        }
+      }
+      return false
+    },
+    shouldHidePaymentInfo() {
+      return this.isLearningMode || this.isNativeApp
+    }
+  }
+  ```
+  ```vue
+  <!-- 결제 정보는 shouldHidePaymentInfo가 false일 때만 표시 -->
+  <div v-if="!shouldHidePaymentInfo" class="...">
+    <!-- 구독료, 결제 방법, 지갑 잔액 정보 -->
+  </div>
+  
+  <!-- 버튼 텍스트 조건부 표시 -->
+  <button>
+    {{ shouldHidePaymentInfo ? $t('learning.studyDetail.becomeMember') : $t('tutor.confirmSubscription') }}
+  </button>
+  ```
+
+## Button Styling
+
+### Button Text Color Rule
+**⚠️ 중요**: 버튼에 배경 이미지가 있고 그 이미지가 흰색이 아닐 경우, 버튼 텍스트의 폰트 색상은 기본적으로 흰색(`text-white`)이어야 합니다.
+
+```vue
+<!-- ✅ 올바른 사용: 배경 이미지가 어두운 경우 -->
+<button 
+  class="text-white"
+  :style="{ backgroundImage: 'url(/images/dark-button-bg.png)' }"
+>
+  {{ $t('button.submit') }}
+</button>
+
+<!-- ✅ 올바른 사용: 배경 이미지가 밝은 경우에도 명시적으로 색상 지정 -->
+<button 
+  class="text-white"
+  :style="{ backgroundImage: 'url(/images/colored-button-bg.png)' }"
+>
+  {{ $t('button.submit') }}
+</button>
+
+<!-- ❌ 잘못된 사용: 배경 이미지가 있는데 텍스트 색상 미지정 -->
+<button 
+  :style="{ backgroundImage: 'url(/images/dark-button-bg.png)' }"
+>
+  {{ $t('button.submit') }}
+</button>
+```
+
+### Button Color Guidelines
+- **배경 이미지가 어두운 색상**: `text-white` 필수
+- **배경 이미지가 밝은 색상**: `text-white` 또는 적절한 대비 색상 사용
+- **배경 이미지가 흰색**: `text-gray-900` 또는 `text-black` 사용 가능
+- **단색 배경**: 배경색에 따라 적절한 텍스트 색상 선택 (대비 확보)
+
+## Currency Display
+
+### USDT Only Policy
+- **⚠️ 중요**: 모든 금액은 USDT로만 표시합니다
+- **USD ($) 또는 KRW (₩) 기호 사용 금지**: 모든 가격, 금액, 결제 금액은 USDT로 표시
+- **표시 형식**: `{amount} USDT` (예: `29.99 USDT`, `1000 USDT`)
+- **환율 변환 유틸리티 불필요**: 앱은 USDT를 단일 통화 단위로 사용
+
+### Examples
+```vue
+<!-- ✅ 올바른 사용 -->
+<div>{{ formatPrice(subscription_price) }} USDT</div>
+<div>{{ amount }} USDT</div>
+<span>{{ tutor.subscription_price }} USDT/{{ $t('common.month') }}</span>
+
+<!-- ❌ 잘못된 사용 -->
+<div>${{ subscription_price }}</div>
+<div>₩{{ amount }}</div>
+<span>{{ tutor.subscription_price }} USD</span>
+```
+
+## Native App Menu Visibility
+
+### Consulting Menu Visibility Rule
+**⚠️ 중요**: 일반 사용자 또는 튜터가 iOS/Android 네이티브 앱에서 접근할 때는 learning 화면만 보여야 합니다.
+
+- **컨설팅 메뉴 숨김 조건**:
+  - 네이티브 앱 환경 (iOS/Android)에서 실행 중
+  - 사용자가 관리자가 아닌 경우 (일반 사용자 또는 튜터)
+  - Learning 모드 경로 (`/learning` 또는 하위 경로)에서 실행 중
+
+- **구현 방법**:
+  ```vue
+  <!-- App.vue -->
+  <script>
+  import { isNativePlatform } from '@/utils/platformUtils'
+  
+  export default {
+    computed: {
+      isNativeApp() {
+        return isNativePlatform()
+      },
+      shouldHideConsultingMenu() {
+        return this.isNativeApp && 
+               !this.isAdmin && 
+               this.$route.path.startsWith('/learning')
+      }
+    }
+  }
+  </script>
+
+  <template>
+    <!-- 컨설팅 메뉴 -->
+    <router-link 
+      v-if="!shouldHideConsultingMenu"
+      to="/consulting"
+    >
+      {{ $t('menu.consulting') }}
+    </router-link>
+  </template>
+  ```
+
+- **적용 위치**:
+  - 데스크톱 네비게이션 (Learning 모드)
+  - 모바일 메뉴 (Learning 모드)
+  - 모바일 하단 네비게이션 (Learning 모드)
+
+## Debugging and Logging
+
+### Logging Functions
+**⚠️ 중요**: 프로젝트에서는 `console.log`, `console.warn`, `console.error`, `console.debug`를 직접 사용하지 않습니다. 대신 공통 디버깅 함수를 사용합니다.
+
+#### Available Functions
+1. **`forceDebugLog(message, data)`**: 항상 출력되는 중요한 로그
+   - 디버그 모드와 무관하게 항상 출력
+   - `console.warn` 레벨로 출력
+   - 사용 예: `window.forceDebugLog('로그인 성공', { userId: 123 })`
+
+2. **`debugLog(message, data)`**: 디버그 모드에서만 출력되는 일반 로그
+   - `sessionStorage.getItem('debug') === 'true'`일 때만 출력
+   - `console.warn` 레벨로 출력
+   - 사용 예: `window.debugLog('API 호출', { endpoint: '/api/users' })`
+
+3. **`logApiError(endpoint, error)`**: API 에러 로깅 (항상 출력)
+   - `console.error` 레벨로 출력
+   - 사용 예: `logApiError('/api/users', error)`
+
+#### Usage Examples
+```javascript
+// ✅ 올바른 사용
+import { debugLog, forceDebugLog, logApiError } from '@/utils/debugUtils'
+
+// 항상 출력되는 중요한 로그
+forceDebugLog('로그인 성공', { userId: 123 })
+
+// 디버그 모드에서만 출력되는 로그
+debugLog('API 호출 시작', { endpoint: '/api/users' })
+
+// API 에러 로깅
+try {
+  await api.get('/api/users')
+} catch (error) {
+  logApiError('/api/users', error)
+}
+
+// 전역 함수로도 사용 가능
+window.forceDebugLog('로그인 성공', { userId: 123 })
+window.debugLog('일반 로그', { data: 'value' })
+```
+
+```javascript
+// ❌ 잘못된 사용 - console.log 직접 사용 금지
+console.log('로그인 성공', { userId: 123 })
+console.warn('경고 메시지')
+console.error('에러 발생', error)
+```
+
+#### Debug Mode Activation
+```javascript
+// 브라우저 콘솔에서 디버그 모드 활성화
+sessionStorage.setItem('debug', 'true')
+
+// 또는 전역 함수 사용
+window.enableDebugMode()
+
+// 디버그 모드 확인
+window.isDebugMode() // true 반환
+```
+
+#### Migration Guide
+기존 `console.log` 사용 코드를 공통 디버깅 함수로 마이그레이션:
+- 항상 보여야 하는 중요한 로그 → `forceDebugLog`
+- 디버깅용 일반 로그 → `debugLog`
+- API 에러 → `logApiError`
+
+자세한 내용은 [디버깅 가이드](../docs/DEBUGGING_GUIDE.md) 참조.
+
+## User Interaction
+
+### Alert and Confirm Dialog Prohibition
+**⚠️ 중요**: 브라우저 기본 `alert()` 및 `confirm()` 함수 사용을 절대 금지합니다. 대신 커스텀 모달 컴포넌트를 사용해야 합니다.
+
+#### Why Prohibition
+- 브라우저 기본 다이얼로그는 스타일링 불가능
+- 사용자 경험(UX) 저하
+- 다국어 지원 어려움
+- 접근성 문제
+
+#### Required Approach
+```vue
+<!-- ✅ 올바른 사용: ConfirmModal 컴포넌트 사용 -->
+<template>
+  <confirm-modal
+    :show="showRefundConfirm"
+    :title="$t('subscriber.refundTitle')"
+    :message="refundConfirmMessage"
+    variant="danger"
+    :confirm-text="$t('common.confirm')"
+    :cancel-text="$t('common.cancel')"
+    @confirm="handleRefundConfirm"
+    @cancel="showRefundConfirm = false"
+  />
+</template>
+
+<script>
+import ConfirmModal from '@/components/common/ConfirmModal.vue'
+
+export default {
+  components: {
+    ConfirmModal
+  },
+  data() {
+    return {
+      showRefundConfirm: false,
+      refundConfirmMessage: ''
+    }
+  },
+  methods: {
+    showRefundModal(subscriber) {
+      this.refundConfirmMessage = this.$t('subscriber.refundConfirm', {
+        email: subscriber.user.email,
+        amount: subscriber.subscription_price
+      })
+      this.showRefundConfirm = true
+    },
+    handleRefundConfirm() {
+      // 환불 처리 로직
+      this.showRefundConfirm = false
+    }
+  }
+}
+</script>
+```
+
+```javascript
+// ❌ 잘못된 사용 - alert, confirm 직접 사용 금지
+if (confirm('정말 삭제하시겠습니까?')) {
+  // 삭제 처리
+}
+
+alert('저장되었습니다')
+```
+
+#### Available Modal Components
+- **ConfirmModal**: 확인/취소 다이얼로그 (`@/components/common/ConfirmModal.vue`)
+- **AlertModal**: 알림 다이얼로그 (필요시 구현)
+- **Custom Modal**: 특수한 경우 커스텀 모달 구현
+
+## Important Notes
+
+1. **다국어**: 모든 텍스트는 `$t()` 사용, 하드코딩 금지
+2. **타임존**: UTC로 받아서 사용자 타임존으로 변환
+3. **반응형**: 모바일 우선 설계, `overflow-x-hidden` 주의
+4. **에러 처리**: 서버 번역 메시지 우선 사용
+5. **접근성**: WCAG 2.1 AA 수준 준수
+6. **버튼 스타일**: 배경 이미지가 흰색이 아닐 경우 버튼 텍스트는 기본적으로 흰색(`text-white`) 사용
+7. **통화 단위**: 모든 금액은 USDT로만 표시, USD ($) 또는 KRW (₩) 기호 사용 금지
+8. **네이티브 앱 메뉴**: 일반 사용자/튜터가 네이티브 앱에서 learning 모드일 때 컨설팅 메뉴 숨김
+9. **로깅**: `console.log` 직접 사용 금지, 공통 디버깅 함수(`debugLog`, `forceDebugLog`, `logApiError`) 사용 필수
+10. **다이얼로그**: `alert()`, `confirm()` 사용 절대 금지, 커스텀 모달 컴포넌트 사용 필수
+
+
+
+
+
+
+
+
+
+
+
+
+
+

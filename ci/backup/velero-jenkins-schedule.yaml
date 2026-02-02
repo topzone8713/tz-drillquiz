@@ -1,0 +1,123 @@
+# Velero Jenkins 자동 백업 스케줄 설정
+# Jenkins 네임스페이스 자동 백업 스케줄
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: jenkins-daily-backup
+  namespace: velero
+  labels:
+    app: jenkins
+    component: ci-cd
+    environment: production
+    schedule-type: daily
+spec:
+  # 스케줄 설정 (매일 새벽 3시)
+  schedule: "0 3 * * *"
+  
+  # 백업 템플릿
+  template:
+    # 백업할 네임스페이스
+    includedNamespaces:
+    - jenkins
+    
+    # 백업할 리소스 타입
+    includedResources:
+    - deployments
+    - statefulsets
+    - services
+    - configmaps
+    - secrets
+    - persistentvolumes
+    - persistentvolumeclaims
+    - pods
+    - replicasets
+    - serviceaccounts
+    - roles
+    - rolebindings
+    
+    # 클러스터 스코프 리소스 포함
+    includeClusterResources: true
+    
+    # 볼륨 백업 설정 (PV 데이터 포함)
+    defaultVolumesToFsBackup: true
+    snapshotVolumes: true
+    
+    # 백업 스토리지 위치
+    storageLocation: default
+    
+    # 백업 유지 기간 (7일 - 일일 백업이므로)
+    ttl: 168h0m0s
+    
+    # 타임아웃 설정
+    csiSnapshotTimeout: 10m0s
+    itemOperationTimeout: 4h0m0s
+    
+    # 메타데이터 (라벨만 지원)
+    metadata:
+      labels:
+        backup-type: jenkins
+        environment: production
+        schedule: daily
+        created-by: velero-schedule
+---
+# 주간 백업 스케줄 (더 긴 보관 기간)
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: jenkins-weekly-backup
+  namespace: velero
+  labels:
+    app: jenkins
+    component: ci-cd
+    environment: production
+    schedule-type: weekly
+spec:
+  # 스케줄 설정 (매주 일요일 새벽 4시)
+  schedule: "0 4 * * 0"
+  
+  # 백업 템플릿
+  template:
+    # 백업할 네임스페이스
+    includedNamespaces:
+    - jenkins
+    
+    # 백업할 리소스 타입
+    includedResources:
+    - deployments
+    - statefulsets
+    - services
+    - configmaps
+    - secrets
+    - persistentvolumes
+    - persistentvolumeclaims
+    - pods
+    - replicasets
+    - serviceaccounts
+    - roles
+    - rolebindings
+    
+    # 클러스터 스코프 리소스 포함
+    includeClusterResources: true
+    
+    # 볼륨 백업 설정 (PV 데이터 포함)
+    defaultVolumesToFsBackup: true
+    snapshotVolumes: true
+    
+    # 백업 스토리지 위치
+    storageLocation: default
+    
+    # 백업 유지 기간 (30일 - 주간 백업이므로)
+    ttl: 720h0m0s
+    
+    # 타임아웃 설정
+    csiSnapshotTimeout: 10m0s
+    itemOperationTimeout: 4h0m0s
+    
+    # 메타데이터 (라벨만 지원)
+    metadata:
+      labels:
+        backup-type: jenkins
+        environment: production
+        schedule: weekly
+        created-by: velero-schedule
+

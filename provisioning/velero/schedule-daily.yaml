@@ -1,0 +1,32 @@
+# Velero 일별 백업 스케줄 (매일 1회)
+# - provisioning/install.sh 로 구성한 자원 전체 대상
+# - 메타정보: 모든 리소스 YAML (includeClusterResources 포함)
+# - 스토리지: PV 볼륨 스냅샷 (snapshotVolumes: true)
+# 대상: 1.MetalLB 2.Ingress NGINX 3.NFS 4.MinIO 5.PostgreSQL 6.Redis 7.Velero(제외) 8.Jenkins
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: daily-provisioning-backup
+  namespace: velero
+  labels:
+    velero.io/schedule-type: provisioning
+spec:
+  schedule: "0 2 * * *"  # 매일 1회 02:00 UTC (한국시간 11:00)
+  paused: false
+  useOwnerReferencesInBackup: false
+  template:
+    # 메타정보: 네임스페이스 리소스 + 클러스터 스코프 리소스(PV, PVC, StorageClass 등)
+    includedNamespaces:
+      - metallb-system
+      - ingress-nginx
+      - nfs-provisioner
+      - devops
+      - devops-dev
+      - jenkins
+    excludedNamespaces:
+      - velero
+    includeClusterResources: true
+    # 스토리지: PV 볼륨 스냅샷 포함 (지원하는 볼륨 타입만 스냅샷, 나머지는 리소스 메타만)
+    snapshotVolumes: true
+    ttl: 168h
+    storageLocation: default

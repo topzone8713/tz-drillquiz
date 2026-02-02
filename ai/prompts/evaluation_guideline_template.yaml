@@ -1,0 +1,122 @@
+# 평가 가이드라인 템플릿
+# 이 파일은 _get_evaluation_guideline 함수에서 사용됩니다.
+# 시험 난이도(1~10)에 따라 평가 기준을 제공합니다.
+
+ko:
+  lenient: |
+    - 평가 방식: **관대한 평가** (포용적, 격려적)
+    - 부분적 답변도 긍정적으로 평가하세요. 핵심 개념을 일부라도 언급하면 점수를 주세요
+    - 완벽하지 않아도 학습 의도가 보이면 격려하세요
+    - 작은 실수나 부정확한 표현은 크게 지적하지 말고, 부드럽게 개선점만 제시하세요
+    - 답변이 모호하거나 불완전해도 가능한 긍정적으로 해석하세요
+    - 학습자의 노력을 인정하고 긍정적인 피드백을 우선 제공하세요
+  moderate: |
+    - 평가 방식: **균형잡힌 평가** (공정한 기준)
+    - 답변의 정확성과 완전성을 모두 고려하여 평가하세요
+    - 핵심 내용은 정확해야 하지만, 표현 방식은 유연하게 평가하세요
+    - 잘한 부분은 인정하고, 부족한 부분은 명확히 지적하세요
+    - 객관적이고 중립적인 피드백을 제공하세요
+  strict: |
+    - 평가 방식: **엄격한 평가** (깐깐한 기준)
+    - 정확성과 완전성을 엄격하게 요구하세요. 핵심 개념이 정확하게 설명되어야 합니다
+    - 부분적 답변은 낮게 평가하고, 완전하고 정확한 답변만 높게 평가하세요
+    - 부정확한 정보나 모호한 표현은 명확히 지적하고 개선을 요구하세요
+    - 답변의 논리적 구조와 전문성을 엄격하게 평가하세요
+    - 높은 수준의 답변을 요구하며, 부족한 부분을 구체적으로 지적하세요
+
+en:
+  lenient: |
+    - Evaluation Style: **Lenient Evaluation** (Inclusive, Encouraging)
+    - Evaluate partial answers positively. Give credit if core concepts are mentioned even partially
+    - Encourage learning intentions even if answers are not perfect
+    - Do not heavily criticize small mistakes or inaccurate expressions, gently suggest improvements
+    - Interpret ambiguous or incomplete answers as positively as possible
+    - Acknowledge the learner's effort and prioritize positive feedback
+  moderate: |
+    - Evaluation Style: **Balanced Evaluation** (Fair Standards)
+    - Evaluate considering both accuracy and completeness of answers
+    - Core content must be accurate, but be flexible with expression styles
+    - Acknowledge good parts and clearly point out insufficient parts
+    - Provide objective and neutral feedback
+  strict: |
+    - Evaluation Style: **Strict Evaluation** (Rigorous Standards)
+    - Demand accuracy and completeness strictly. Core concepts must be explained accurately
+    - Evaluate partial answers low, only fully accurate answers receive high scores
+    - Clearly point out inaccurate information or ambiguous expressions and demand improvement
+    - Strictly evaluate logical structure and professionalism of answers
+    - Demand high-level answers and specifically point out insufficient parts
+
+es:
+  lenient: |
+    - Estilo de Evaluación: **Evaluación Indulgente** (Inclusiva, Alentadora)
+    - Evalúa las respuestas parciales positivamente. Da crédito si se mencionan conceptos clave incluso parcialmente
+    - Fomenta las intenciones de aprendizaje incluso si las respuestas no son perfectas
+    - No critiques fuertemente los pequeños errores o expresiones inexactas, sugiere mejoras suavemente
+    - Interpreta las respuestas ambiguas o incompletas lo más positivamente posible
+    - Reconoce el esfuerzo del estudiante y prioriza la retroalimentación positiva
+  moderate: |
+    - Estilo de Evaluación: **Evaluación Equilibrada** (Estándares Justos)
+    - Evalúa considerando tanto la precisión como la integridad de las respuestas
+    - El contenido clave debe ser preciso, pero sé flexible con los estilos de expresión
+    - Reconoce las partes buenas y señala claramente las partes insuficientes
+    - Proporciona retroalimentación objetiva y neutral
+  strict: |
+    - Estilo de Evaluación: **Evaluación Estricta** (Estándares Rigurosos)
+    - Exige precisión e integridad estrictamente. Los conceptos clave deben explicarse con precisión
+    - Evalúa las respuestas parciales de manera baja, solo las respuestas completamente precisas reciben puntajes altos
+    - Señala claramente la información inexacta o expresiones ambiguas y exige mejoras
+    - Evalúa estrictamente la estructura lógica y profesionalismo de las respuestas
+    - Exige respuestas de alto nivel y señala específicamente las partes insuficientes
+
+zh:
+  lenient: |
+    - 评估方式: **宽松评估** (包容性、鼓励性)
+    - 对部分答案也要积极评价。即使只提到部分核心概念也要给分
+    - 即使答案不完美，也要鼓励学习意图
+    - 不要严厉批评小错误或不准确表达，温和地提出改进建议
+    - 尽可能正面解释模糊或不完整的答案
+    - 承认学习者的努力，优先提供积极反馈
+  moderate: |
+    - 评估方式: **平衡评估** (公平标准)
+    - 同时考虑答案的准确性和完整性进行评估
+    - 核心内容必须准确，但对表达方式要灵活评估
+    - 认可好的部分，清楚指出不足的部分
+    - 提供客观中立的反馈
+  strict: |
+    - 评估方式: **严格评估** (严格标准)
+    - 严格要求准确性和完整性。核心概念必须准确解释
+    - 部分答案给低分，只有完全准确的答案才给高分
+    - 明确指出不准确的信息或模糊的表达，要求改进
+    - 严格评估答案的逻辑结构和专业性
+    - 要求高水平的答案，具体指出不足的部分
+
+ja:
+  lenient: |
+    - 評価スタイル: **寛大な評価** (包括的、励まし的)
+    - 部分的な回答も積極的に評価してください。核心概念の一部でも言及されていれば点数を与えてください
+    - 完璧でなくても学習意図が見えれば励ましてください
+    - 小さな間違いや不正確な表現は大きく指摘せず、優しく改善点だけを提示してください
+    - 曖昧または不完全な回答も可能な限り前向きに解釈してください
+    - 学習者の努力を認め、前向きなフィードバックを優先的に提供してください
+  moderate: |
+    - 評価スタイル: **バランスの取れた評価** (公平な基準)
+    - 回答の正確性と完全性の両方を考慮して評価してください
+    - 核心内容は正確でなければなりませんが、表現方法は柔軟に評価してください
+    - 良い部分は認め、不足している部分は明確に指摘してください
+    - 客観的で中立的なフィードバックを提供してください
+  strict: |
+    - 評価スタイル: **厳格な評価** (厳しい基準)
+    - 正確性と完全性を厳しく要求してください。核心概念は正確に説明されなければなりません
+    - 部分的な回答は低く評価し、完全で正確な回答のみを高く評価してください
+    - 不正確な情報や曖昧な表現は明確に指摘し、改善を要求してください
+    - 回答の論理構造と専門性を厳格に評価してください
+    - 高水準の回答を要求し、不足している部分を具体的に指摘してください
+
+
+
+
+
+
+
+
+

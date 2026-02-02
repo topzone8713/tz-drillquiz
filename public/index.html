@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="DrillQuiz - The best online quiz learning platform. Practice with DrillQuiz quizzes, manage exams, and track your learning progress. Start learning with DrillQuiz today!">
+    <meta name="keywords" content="DrillQuiz, quiz, learning, exam, problem solving, online learning, quiz platform, practice quiz, exam management, learning progress, DrillQuiz platform">
+    <meta name="author" content="DrillQuiz Team">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://us.drillquiz.com">
+    
+    <!-- Hreflang Tags for Multilingual SEO -->
+    <link rel="alternate" hreflang="x-default" href="https://us.drillquiz.com">
+    <link rel="alternate" hreflang="en" href="https://us.drillquiz.com">
+    <link rel="alternate" hreflang="ko" href="https://us.drillquiz.com">
+    <link rel="alternate" hreflang="es" href="https://us.drillquiz.com">
+    <link rel="alternate" hreflang="zh" href="https://us.drillquiz.com">
+    <link rel="alternate" hreflang="ja" href="https://us.drillquiz.com">
+    
+    <!-- Structured Data (Schema.org) - JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "DrillQuiz",
+      "alternateName": "DrillQuiz Quiz Learning Platform",
+      "description": "DrillQuiz is an online platform for efficient quiz learning. Maximize your learning effectiveness through problem solving, exam management, and learning progress tracking.",
+      "url": "https://us.drillquiz.com",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free quiz learning platform"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.5",
+        "ratingCount": "100"
+      },
+      "featureList": [
+        "Quiz Practice",
+        "Exam Management",
+        "Learning Progress Tracking",
+        "Multi-language Support",
+        "Random Practice Mode"
+      ],
+      "screenshot": "https://us.drillquiz.com/logo.png",
+      "softwareVersion": "1.0",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "permissions": "No special permissions required"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "DrillQuiz",
+      "url": "https://us.drillquiz.com",
+      "logo": "https://us.drillquiz.com/logo.png",
+      "description": "DrillQuiz - Online quiz learning platform",
+      "sameAs": [
+        "https://us.drillquiz.com"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "url": "https://us.drillquiz.com"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "DrillQuiz",
+      "alternateName": "DrillQuiz Quiz Platform",
+      "url": "https://us.drillquiz.com",
+      "description": "DrillQuiz - The best online quiz learning platform for effective learning",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://us.drillquiz.com/random-practice"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://us.drillquiz.com">
+    <meta property="og:title" content="DrillQuiz - Best Online Quiz Learning Platform">
+    <meta property="og:description" content="DrillQuiz - Practice with quizzes, manage exams, and track your learning progress. Start learning with DrillQuiz today!">
+    <meta property="og:image" content="https://us.drillquiz.com/logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="DrillQuiz">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:url" content="https://us.drillquiz.com">
+    <meta name="twitter:title" content="DrillQuiz - Best Online Quiz Learning Platform">
+    <meta name="twitter:description" content="DrillQuiz - Practice with quizzes, manage exams, and track your learning progress. Start learning with DrillQuiz today!">
+    <meta name="twitter:image" content="https://us.drillquiz.com/logo.png">
+    
+    <!-- Google Analytics - 운영 환경에서만 로드 -->
+    <script>
+      // 운영 환경에서만 Google Analytics 로드
+      (function() {
+        var hostname = window.location.hostname;
+        var isProduction = hostname === 'drillquiz.com' || 
+                          hostname === 'us.drillquiz.com' || 
+                          hostname.endsWith('.drillquiz.com');
+        
+        if (isProduction) {
+          // Google tag (gtag.js) - 운영 환경에서만 로드
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-RC3W82S7E0';
+          document.head.appendChild(script);
+          
+          script.onload = function() {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-RC3W82S7E0');
+            window.gtag = gtag;
+          };
+        } else {
+          // 개발/로컬 환경에서는 더미 gtag 함수 제공 (에러 방지)
+          window.gtag = function() {
+            // 개발 환경에서는 아무것도 하지 않음
+            if (window.console && window.console.log) {
+              console.log('[DEV] Google Analytics disabled for:', hostname);
+            }
+          };
+          window.dataLayer = [];
+        }
+      })();
+    </script>
+    
+    <title>DrillQuiz - Best Online Quiz Learning Platform | Practice & Learn</title>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but DrillQuiz doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html> 

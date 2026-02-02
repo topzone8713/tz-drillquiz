@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mcall-operator": {
+      "command": "mcp-proxy",
+      "args": [
+        "--headers", "X-API-Key=DevOps\\!323",
+        "--port", "3335",
+        "https://mcp-dev.drillquiz.com/mcp"
+      ],
+      "description": "Kubernetes Task and Workflow Manager"
+    }
+  }
+}

@@ -1,0 +1,233 @@
+---
+description: Backend development rules for Django, Python, PostgreSQL, Celery, and Redis
+globs: ["backend/**/*.py", "drillquiz/**/*.py", "manage.py"]
+alwaysApply: false
+---
+
+# DrillQuiz Backend Development Rules
+
+## Technology Stack
+- **Framework**: Django 4.2.7
+- **Python**: 3.12
+- **Database**: PostgreSQL 15 (모든 환경)
+- **ORM**: Django ORM
+- **API**: Django REST Framework 3.14.0
+- **Authentication**: Google OAuth, Django REST Framework SimpleJWT (Access/Refresh 토큰)
+- **Task Queue**: Celery with Redis
+- **Cache**: Redis Cluster (운영), 로컬 메모리 캐시 (개발)
+- **Storage**: MinIO S3 호환 스토리지 (운영), 로컬 파일 시스템 (개발)
+
+## Code Style
+- **Python Style**: PEP 8 준수
+- **Django Conventions**: Django 스타일 가이드 준수
+- **Import Order**: 표준 라이브러리 → 서드파티 → 로컬 앱
+- **Docstrings**: 모든 함수와 클래스에 docstring 작성
+
+## Database Guidelines
+
+### Database Configuration
+- **⚠️ 중요: 개발 환경에서도 SQLite를 사용하지 않고 PostgreSQL을 사용합니다**
+- 모든 환경에서 PostgreSQL을 사용하도록 설정되어 있습니다
+- 기본값: `USE_POSTGRES=true` (PostgreSQL 사용)
+- 개발 환경 접속: `db-dev.drillquiz.com:30432` (NodePort 서비스)
+- 또는 포트 포워딩: `localhost:54486`
+
+### Models
+- 모든 모델은 `created_at`, `updated_at` 필드 포함
+- UUID는 `uuid.uuid4()` 사용
+- 외래키는 `on_delete` 명시 (CASCADE, PROTECT 등)
+- `null=True, blank=True` vs `null=False, blank=False` 구분 명확히
+- 다국어 필드는 `_ko`, `_en`, `_ja`, `_zh`, `_es`, `_fr` 접미사 사용
+- 다국어 완성도 플래그: `is_ko_complete`, `is_en_complete` 등
+
+### Migrations
+- 마이그레이션 순서 중요: 필드 추가 → 데이터 마이그레이션 → 필드 제거
+- `RunPython`은 필드가 존재한 후에 실행
+- 롤백 함수 필수 작성
+- 운영 환경 적용 전 반드시 백업
+
+### Queries
+- N+1 문제 방지: `select_related()`, `prefetch_related()` 사용
+- 필요한 필드만 조회: `only()`, `defer()` 활용
+- 복합 인덱스 활용: `(grade, temperature)`, `(tutor_id, status)` 등
+- 대용량 쿼리는 배치 처리
+
+## API Development
+
+### RESTful API Design
+- 엔드포인트는 명사 사용: `/api/tutors/`, `/api/recommendations/`
+- HTTP 메서드 적절히 사용: GET, POST, PATCH, DELETE
+- 상태 코드 명확히: 200, 201, 400, 401, 403, 404, 500
+
+### Serializers
+- ModelSerializer 기본 사용
+- 필요한 필드만 노출: `fields` 명시
+- 다국어 필드는 `SerializerMethodField`로 현재 언어 반환
+- 타임존 변환은 프론트엔드에서 처리 (UTC로 저장, ISO 8601 형식 반환)
+
+### Authentication & Authorization
+- CSRF 토큰 필수: `/api/csrf-token/` 엔드포인트 제공
+- JWT 토큰 기반 인증
+- 역할 기반 접근 제어: `admin_role`, `tutor_role`, `user_role`
+- 권한 데코레이터 사용: `@permission_classes([IsAuthenticated])`
+- **Membership Level Management**:
+  - Subscription model의 `status` 필드로 멤버십 레벨 관리
+  - `status='pending'`: 준회원 (associate member, USDT 결제 미완료)
+  - `status='active'`: 회원 (member, USDT 결제 완료)
+  - 학습 화면에서 "멤버되기" 버튼 클릭 시 Subscription 생성 (status='pending')
+  - USDT 결제 완료 시 status를 'active'로 변경
+  - 접근 제어 시 Subscription의 status 확인하여 권한 체크
+
+### Learning Exam Access Control
+- **ExamViewSet의 "내 시험" 필터 (`my_exams=true`) 로직**:
+  1. 자신이 생성한 시험: `Q(created_by=user)`
+  2. 구독한 시험: `Q(id__in=subscribed_exam_ids)` (ExamSubscription)
+  3. **스터디 멤버의 시험**: `Q(created_by_id__in=study_tutor_ids)` (StudyMember를 통해)
+     - **중요**: 구독 여부와 관계없이 StudyMember로 등록된 스터디의 튜터가 만든 시험 포함
+     - `is_active` 상태와 관계없이 모든 StudyMember 포함
+     - StudyMember 조회: `StudyMember.objects.filter(user=user, study__created_by__isnull=False)`
+  4. 구독한 튜터의 시험: `Q(created_by_id__in=subscribed_tutor_user_ids)` (Subscription)
+- **튜터 시험 접근**: 튜터는 `my_exams` 필터와 무관하게 자신이 생성한 시험을 항상 볼 수 있어야 함
+  - `my_exams != 'true'`일 때도: `Q(is_public=True) | Q(created_by=user)` (튜터인 경우)
+- **시험 생성 권한**: `IsTutorOrReadOnly` - 튜터만 생성 가능, 모든 사용자는 읽기 가능
+
+### Error Handling
+- 모든 API는 일관된 에러 응답 형식:
+  ```python
+  {
+    "error": "에러 메시지",
+    "detail": "상세 설명"
+  }
+  ```
+- 다국어 에러 메시지: 사용자 언어에 맞는 메시지 반환
+- 서버 번역 우선, 없으면 프론트엔드 번역 키 사용
+
+## Multilingual Support
+
+### Translation Files
+- 백엔드 번역 파일: `backend/translations/message_XX.py`
+- 지원 언어: ko, en, ja, zh, es, fr (6개)
+- 모든 번역 키는 모든 언어 파일에 추가 필수
+- 번역 키 명명: `카테고리.구체적설명` (예: `auth.login`, `tutor.grade`)
+
+### Content Translation
+- 사용자 생성 콘텐츠는 6개 언어 필드 모두 가짐
+- `created_language`: 최초 생성 언어 기록
+- `is_XX_complete`: 언어별 번역 완성도 플래그
+- OpenAI API를 통한 자동 번역 (Celery 백그라운드 처리)
+
+## Timezone Handling
+
+### Storage
+- 모든 타임스탬프는 UTC로 저장
+- PostgreSQL: `TIMESTAMP WITH TIME ZONE` 사용
+- Django: `USE_TZ = True` 설정
+
+### Conversion
+- API 응답은 ISO 8601 형식: `2025-12-02T09:00:00+00:00`
+- 프론트엔드에서 사용자 타임존으로 변환
+- `django.utils.timezone` 사용, `datetime.now()` 금지
+
+## Celery Tasks
+
+### Task Definition
+- `@shared_task` 데코레이터 사용
+- 태스크 이름 명확히: `translate_tutor_introduction`
+- 에러 핸들링 및 재시도 로직 포함
+
+### Redis Configuration
+- DB 0: Celery 브로커 (메시지 큐)
+- DB 1: Django 캐시
+- DB 2: Celery 결과 백엔드
+
+## Batch Jobs (Scheduled Tasks)
+
+### Overview
+- 모든 주기적 작업은 Kubernetes CronJob으로 실행됩니다
+- Celery Beat는 더 이상 사용하지 않으며, 모든 스케줄 작업은 k8s CronJob으로 마이그레이션되었습니다
+- 각 배치는 Django management command로 구현되어 있습니다
+
+### Available Batch Jobs
+1. **check_deposit_payments** - 입금 결제 확인 (5분마다)
+2. **check_recommendation_achievements** - 추천 달성 확인 (30분마다)
+3. **send_expiring_subscription_notifications** - 구독 만료 예정 알림 발송 (매일 오전 9시)
+4. **process_auto_renewal_payments** - 자동 갱신 결제 처리 (매일 오전 0시 30분)
+5. **expire_unpaid_subscriptions** - 미결제 구독 만료 처리 (매일 오전 1시)
+6. **check_expired_deposit_requests** - 만료된 입금 요청 확인 (10분마다)
+7. **check_trc20_usdt_deposits** - TRC20 USDT 입금 확인 (3분마다)
+8. **check_erc20_usdt_deposits** - ERC20 USDT 입금 확인 (3분마다)
+9. **auto_translate_all** - 전체 자동 번역 처리 (매일 새벽 2시)
+
+### Local Testing
+- **Linux/Mac**: `./scripts/run_batch.sh <batch_name>` 또는 `./scripts/run_batch.sh list`
+- **Windows**: `scripts\run_batch.bat <batch_name>` 또는 `scripts\run_batch.bat list`
+- 스크립트는 자동으로 환경변수(.env 또는 env)와 가상환경(venv)을 로드합니다
+- 자세한 내용은 `docs/BATCH_EXECUTION_GUIDE.md` 참조
+
+### Implementation
+- 모든 배치는 `backend/management/commands/` 디렉토리에 Django management command로 구현
+- Kubernetes CronJob 정의는 `ci/k8s-dev.yaml` (개발) 및 `ci/k8s.yaml` (운영)에 포함
+- 배치 실행 시 로그를 확인하여 정상 동작 여부를 확인해야 합니다
+
+## Security
+
+### Authentication
+- 비밀번호는 bcrypt로 해싱
+- JWT 토큰 만료 시간 적절히 설정
+- 세션 타임아웃: 24시간
+
+### Data Protection
+- 민감한 정보는 암호화 저장
+- 개인정보는 GDPR 준수
+- SQL Injection 방지: ORM 사용, Raw SQL 금지
+
+## Currency Unit
+
+### USDT Only Policy
+- **⚠️ 중요**: 모든 금액은 USDT로만 표시합니다
+- **USD ($) 또는 KRW (₩) 기호 사용 금지**: 모든 가격, 금액, 결제 금액은 USDT로 표시
+- **API 응답 형식**: 금액 필드는 숫자로 반환하고, 프론트엔드에서 `{amount} USDT` 형식으로 표시
+- **데이터베이스**: 금액 필드는 `DecimalField`로 저장 (예: `subscription_price`, `amount`, `usdt_amount`)
+- **환율 변환 유틸리티 불필요**: 앱은 USDT를 단일 통화 단위로 사용
+
+### Examples
+```python
+# ✅ 올바른 사용
+{
+    "subscription_price": "29.99",  # 숫자 문자열
+    "amount": "100.00",
+    "usdt_amount": "29.99"
+}
+
+# ❌ 잘못된 사용
+{
+    "subscription_price": "$29.99",  # 기호 포함 금지
+    "amount": "₩100,000",
+    "currency": "USD"  # 통화 필드 불필요
+}
+```
+
+## Important Notes
+
+1. **데이터베이스**: 개발 환경에서도 SQLite를 사용하지 않고 PostgreSQL을 사용합니다
+   - 기본값: `USE_POSTGRES=true`
+   - 개발 환경 접속: `db-dev.drillquiz.com:30432` 또는 `localhost:54486` (포트 포워딩)
+2. **다국어 필드**: 모든 사용자 생성 콘텐츠는 6개 언어 필드 필수
+3. **타임존**: 모든 시간은 UTC로 저장, 프론트엔드에서 변환
+4. **번역**: 서버 번역 우선, 하드코딩된 fallback 금지
+5. **마이그레이션**: 필드 추가 → 데이터 복사 → 필드 제거 순서 준수
+6. **보안**: CSRF 토큰, JWT 인증, 역할 기반 접근 제어 필수
+7. **통화 단위**: 모든 금액은 USDT로만 표시, USD ($) 또는 KRW (₩) 기호 사용 금지
+
+
+
+
+
+
+
+
+
+
+
+
+

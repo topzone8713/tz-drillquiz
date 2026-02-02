@@ -1,0 +1,145 @@
+---
+description: CI/CD development rules for Jenkins, Kubernetes, Docker, and Velero
+globs: ["ci/**/*", "Dockerfile*", "*.yaml", "*.yml"]
+alwaysApply: false
+---
+
+# DrillQuiz CI/CD Development Rules
+
+## Technology Stack
+- **CI/CD**: Jenkins (Multibranch Pipeline)
+- **Container**: Docker
+- **Orchestration**: Kubernetes
+- **Security Scanning**: Semgrep, Trivy, Checkov, kube-linter, OWASP ZAP
+- **Backup**: Velero
+- **GitOps**: ArgoCD (optional)
+
+## Pipeline Structure
+
+### Branch-Specific Pipelines
+- **main/dev branch**: `ci/Jenkinsfile` (basic pipeline)
+- **qa branch**: `ci/Jenkinsfile_qa` (comprehensive security scan)
+- **mobile branch**: `ci/Jenkins_mobile` (Capacitor mobile delivery)
+
+## Environment Configuration
+
+### Production Environment (main branch)
+- **Namespace**: `drillquiz` (application pods)
+- **Database**: `devops-postgres-postgresql.devops.svc.cluster.local`
+- **Redis**: `redis-cluster-drillquiz-master.devops.svc.cluster.local`
+- **MinIO**: `minio.devops.svc.cluster.local` (drillquiz bucket)
+
+### QA Environment (qa branch)
+- **Namespace**: `drillquiz-dev` (application pods)
+- **Database**: `devops-postgres-postgresql.devops-dev.svc.cluster.local`
+- **Redis**: `redis-cluster-drillquiz-master.devops.svc.cluster.local`
+
+## Security Scanning
+
+### Tools Integration
+1. **SAST**: Semgrep (Python/Django + JavaScript/Vue.js)
+2. **SCA**: Trivy (Python dependencies, Node.js packages)
+3. **Container Scanning**: Trivy (Docker images)
+4. **IaC Scanning**: Checkov, kube-linter (Kubernetes manifests)
+5. **DAST**: OWASP ZAP, Nikto (Running web application)
+
+### Security Configuration
+```bash
+SAST_YN=true
+SCA_YN=true
+CONTAINER_SCAN_YN=true
+IAC_SCAN_YN=true
+DAST_SCAN_YN=true
+```
+
+## Kubernetes Deployment
+
+### Resource Naming
+- Production: No branch suffix
+- Non-production: `${GIT_BRANCH}` suffix
+- Secrets: Always include `${SECRET_SUFFIX}`
+
+### Resource Limits
+- CPU: 500m-1000m
+- Memory: 500Mi-1000Mi
+- HPA: 2-10 replicas
+
+## CronJobs (Scheduled Batch Jobs)
+
+### Overview
+- 모든 주기적 작업은 Kubernetes CronJob으로 실행됩니다
+- Celery Beat는 더 이상 사용하지 않으며, 모든 스케줄 작업은 k8s CronJob으로 마이그레이션되었습니다
+- CronJob 정의는 `ci/k8s-dev.yaml` (개발) 및 `ci/k8s.yaml` (운영)에 포함되어 있습니다
+
+### CronJob Configuration
+- **concurrencyPolicy**: `Forbid` - 이전 Job이 실행 중이면 새 Job 실행 안 함 (중복 방지)
+- **successfulJobsHistoryLimit**: `3` - 성공한 Job 3개 유지
+- **failedJobsHistoryLimit**: `3` - 실패한 Job 3개 유지
+- **startingDeadlineSeconds**: 배치별로 설정 (5분~1시간)
+
+### Available CronJobs
+1. **drillquiz-check-deposit-payments-GIT_BRANCH** - 5분마다
+2. **drillquiz-rec-achievements-GIT_BRANCH** - 30분마다
+3. **drillquiz-sub-expiring-notify-GIT_BRANCH** - 매일 오전 9시
+4. **drillquiz-auto-renewal-GIT_BRANCH** - 매일 오전 0시 30분
+5. **drillquiz-expire-subs-GIT_BRANCH** - 매일 오전 1시
+6. **drillquiz-expired-deposits-GIT_BRANCH** - 10분마다
+7. **drillquiz-check-trc20-usdt-deposits-GIT_BRANCH** - 3분마다
+8. **drillquiz-check-erc20-usdt-deposits-GIT_BRANCH** - 3분마다
+9. **drillquiz-auto-translate-all-GIT_BRANCH** - 매일 새벽 2시
+
+### Local Testing
+- **Linux/Mac**: `./scripts/run_batch.sh <batch_name>` 또는 `./scripts/run_batch.sh list`
+- **Windows**: `scripts\run_batch.bat <batch_name>` 또는 `scripts\run_batch.bat list`
+- 스크립트는 자동으로 환경변수(.env 또는 env)와 가상환경(venv)을 로드합니다
+- 자세한 내용은 `docs/BATCH_EXECUTION_GUIDE.md` 참조
+
+### Manual Execution (Kubernetes)
+```bash
+# CronJob을 수동으로 즉시 실행
+kubectl create job --from=cronjob/<cronjob-name> manual-run-$(date +%s) -n <namespace>
+
+# 생성된 Job의 로그 확인
+kubectl logs -n <namespace> job/<job-name>
+```
+
+### Monitoring
+```bash
+# CronJob 상태 확인
+kubectl get cronjobs -n <namespace>
+
+# 최근 실행 이력
+kubectl get jobs -n <namespace> --sort-by=.metadata.creationTimestamp | tail -10
+
+# 특정 배치의 Job 로그
+kubectl logs -n <namespace> -l app=<app-label> --tail=100
+```
+
+## Velero Backup
+
+### Backup Configuration
+- **Namespace**: `devops` (PostgreSQL, MinIO)
+- **Schedule**: Daily at 2:00 AM (7 days retention)
+- **Storage**: MinIO
+
+## Important Notes
+
+1. **보안 스캔**: qa 브랜치에서 comprehensive 스캔 실행
+2. **백업**: 운영 환경 배포 전 반드시 백업
+3. **롤백**: 자동 롤백 절차 준비
+4. **환경 변수**: Kubernetes Secret 우선순위 최고
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

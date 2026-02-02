@@ -1,0 +1,206 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drillquiz-GIT_BRANCH
+spec:
+  selector:
+    matchLabels:
+      app: drillquiz-GIT_BRANCH
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        org: tz
+        team: devops
+        environment: STAGING
+        app: drillquiz-GIT_BRANCH
+    spec:
+      imagePullSecrets:
+        - name: tz-registrykey
+      containers:
+      - name: drillquiz-GIT_BRANCH
+        image: doohee323/drillquiz:BUILD_NUMBER_PLACEHOLDER
+        imagePullPolicy: Always
+#        readinessProbe:
+#          httpGet:
+#            path: /health
+#            port: 8000
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500Mi
+          limits:
+            cpu: 1000m
+            memory: 1000Mi
+        envFrom:
+        - configMapRef:
+            name: drillquiz-configmap-GIT_BRANCH
+        - secretRef:
+            name: drillquiz-secret-GIT_BRANCH
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: drillquiz-GIT_BRANCH
+spec:
+  type: NodePort
+  selector:
+    app: drillquiz-GIT_BRANCH
+  ports:
+    - port: 80
+      name: api-80
+      targetPort: 8000
+#    - port: 443
+#      name: api-443
+#      targetPort: 443
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: drillquiz-configmap-GIT_BRANCH
+data:
+  ENVIRONMENT: "production"
+  USE_DOCKER: "true"
+  POSTGRES_DB: "drillquiz"
+  POSTGRES_USER: "admin"
+  POSTGRES_HOST: "devops-postgres-postgresql.devops-dev.svc.cluster.local"
+  DATABASE_ENGINE: "django.db.backends.postgresql"  # PostgreSQL 사용
+  DATABASE_NAME: "drillquiz"  # PostgreSQL 데이터베이스명
+  POSTGRES_PORT: "5432"
+  SECRET_KEY: drillquiz-secret-GIT_BRANCH
+  CURRENT_DOMAIN: "DOMAIN_PLACEHOLDER"
+  ALLOWED_HOSTS: "localhost,127.0.0.1,devops-dev.drillquiz.com,leetcode-dev.drillquiz.com,DOMAIN_PLACEHOLDER"
+  CORS_ALLOWED_ORIGINS: "http://localhost:8080,https://devops-dev.drillquiz.com,https://leetcode-dev.drillquiz.com,https://DOMAIN_PLACEHOLDER"
+  USE_MINIO: "true"
+  MINIO_ENDPOINT: "http://minio.devops.svc.cluster.local:9000"
+  MINIO_BUCKET_NAME: "drillquiz-dev"
+  GOOGLE_OAUTH_CLIENT_ID: "195449497097-rf2f22ampv4imqb80fvibhr7oq5oc7km.apps.googleusercontent.com"
+  GOOGLE_OAUTH_REDIRECT_URI: "https://us-dev.drillquiz.com/api/google-oauth/"
+  VUE_APP_GOOGLE_CLIENT_ID: "195449497097-rf2f22ampv4imqb80fvibhr7oq5oc7km.apps.googleusercontent.com"
+  VUE_APP_GOOGLE_CLIENT_SECRET: #GOOGLE_OAUTH_CLIENT_SECRET
+  VUE_APP_GOOGLE_REDIRECT_URI: "https://us-dev.drillquiz.com/api/google-oauth/"
+  APPLE_CLIENT_ID: "com.drillquiz.web"
+  APPLE_TEAM_ID: "338MR492VK"
+  CELERY_BROKER_URL: "redis://redis-cluster-drillquiz-master.devops.svc.cluster.local:6379/4"
+  CELERY_RESULT_BACKEND: "redis://redis-cluster-drillquiz-master.devops.svc.cluster.local:6379/5"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: drillquiz-GIT_BRANCH
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # Performance optimization
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+    nginx.ingress.kubernetes.io/gzip-types: "text/plain, text/css, application/json, application/javascript, text/xml, application/xml, application/xml+rss, text/javascript, application/xml"
+
+    # Backend connection optimization
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+
+    nginx.ingress.kubernetes.io/whitelist-source-range: "67.180.196.114/24,96.45.36.254/24"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      
+      # Content Security Policy - Allow Google Analytics 4 and OAuth
+      add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com; script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://analytics.google.com https://accounts.google.com; img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' data: https://cdnjs.cloudflare.com;" always;
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: us-GIT_BRANCH.drillquiz.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: drillquiz-GIT_BRANCH
+            port:
+              number: 8000
+  - host: devops-GIT_BRANCH.drillquiz.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: drillquiz-GIT_BRANCH
+            port:
+              number: 8000
+  tls:
+    - hosts:
+        - us-GIT_BRANCH.drillquiz.com
+        - devops-GIT_BRANCH.drillquiz.com
+      secretName: drillquiz-GIT_BRANCH
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: drillquiz-secret-GIT_BRANCH
+type: Opaque
+data:
+  SECRET_KEY: eW91ci1wcm9kdWN0aW9uLXNlY3JldC1rZXktaGVyZQ==
+  POSTGRES_PASSWORD: #POSTGRES_PASSWORD
+  MINIO_ACCESS_KEY: UnFyR1ZxR0hDaEExZHE4cGc4dUI=
+  MINIO_SECRET_KEY: #MINIO_SECRET_KEY
+  USE_MINIO: dHJ1ZQ==
+  MINIO_BUCKET_NAME: ZHJpbGxxdWl6LWRldg==
+  OPENAI_API_KEY: #OPENAI_API_KEY
+  GOOGLE_OAUTH_CLIENT_SECRET: #GOOGLE_OAUTH_CLIENT_SECRET
+  OPENAI_MODEL: Z3B0LTMuNS10dXJibw==
+  GEMINI_API_KEY: #GEMINI_API_KEY
+  GEMINI_MODEL: Z2VtaW5pLTIuNS1mbGFzaA==
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drillquiz-celery-worker-GIT_BRANCH
+spec:
+  selector:
+    matchLabels:
+      app: drillquiz-celery-worker-GIT_BRANCH
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        org: tz
+        team: devops
+        environment: STAGING
+        app: drillquiz-celery-worker-GIT_BRANCH
+    spec:
+      imagePullSecrets:
+        - name: tz-registrykey
+      containers:
+      - name: celery-worker
+        image: doohee323/drillquiz:BUILD_NUMBER_PLACEHOLDER
+        imagePullPolicy: Always
+        command: ["celery", "-A", "drillquiz", "worker", "--loglevel=info", "--concurrency=2"]
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        envFrom:
+        - configMapRef:
+            name: drillquiz-configmap-GIT_BRANCH
+        - secretRef:
+            name: drillquiz-secret-GIT_BRANCH
+
+

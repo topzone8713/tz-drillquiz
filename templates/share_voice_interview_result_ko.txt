@@ -1,0 +1,17 @@
+Voice Interview 결과 공유
+
+안녕하세요,
+
+{{ sharer_name }}님이 Voice Interview 결과를 공유했습니다.
+
+시험: {{ exam_title }}
+완료일시: {{ completed_at }}
+점수: {{ score }}/{{ total_score }}
+정확도: {{ accuracy }}%
+
+결과를 확인하려면 아래 링크를 클릭하세요:
+{{ result_url }}
+
+© 2024 DrillQuiz. All rights reserved.
+이 이메일은 {{ sharer_name }}님이 요청한 공유 이메일입니다.
+

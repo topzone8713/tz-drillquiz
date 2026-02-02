@@ -1,0 +1,53 @@
+## MinIO Helm Chart Values (MinIO 공식 Helm Chart)
+## 
+## 기본 values를 가져오려면 다음 명령어를 실행하세요:
+##   helm repo add minio https://charts.min.io/
+##   helm repo update
+##   helm show values minio/minio --version 5.4.0 > values.yaml
+##
+## 실제 적용된 설정을 확인하려면:
+##   helm get values minio -n devops
+
+## MinIO Authentication parameters
+## Root user access key
+accessKey: "topzone-k8s"
+
+## Root user secret key
+secretKey: "DevOps!323"
+
+## MinIO Mode - distributed 모드 (3개 노드 환경)
+mode: distributed
+
+## MinIO Replica configuration
+## distributed 모드는 최소 4개 드라이브 필요 (4개 Pod)
+replicas: 4
+
+## 드라이브 per 노드 (각 Pod당 1개 드라이브)
+drivesPerNode: 1
+
+## MinIO Persistence configuration
+persistence:
+  ## Storage class for PersistentVolumeClaim
+  ## nfs-client 스토리지 클래스 사용
+  storageClass: "nfs-client"
+  ## Storage size per pod
+  size: 5Gi
+
+## MinIO Resource requests and limits (메모리 제약 고려)
+resources:
+  requests:
+    ## Memory request (256Mi로 더 줄임 - distributed 모드에서는 여러 Pod로 분산)
+    memory: 256Mi
+    ## CPU request
+    cpu: 100m
+  limits:
+    ## Memory limit
+    memory: 512Mi
+    ## CPU limit
+    cpu: 250m
+
+## Tolerations (control-plane 노드에도 스케줄링 가능하도록)
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule

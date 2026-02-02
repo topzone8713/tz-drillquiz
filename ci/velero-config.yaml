@@ -1,0 +1,218 @@
+# Velero 설정 파일
+# 백업 스토리지 위치와 볼륨 스냅샷 위치 설정
+
+---
+# 백업 스토리지 위치 설정 (MinIO S3 호환 스토리지)
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: default
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+    app.kubernetes.io/managed-by: Helm
+    component: backup-storage
+    environment: devops
+spec:
+  # 기본 백업 스토리지로 설정
+  default: true
+  
+  # 접근 모드
+  accessMode: ReadWrite
+  
+  # 스토리지 제공자 (AWS S3 호환)
+  provider: aws
+  
+  # 오브젝트 스토리지 설정
+  objectStorage:
+    bucket: devops-velero
+  
+  # MinIO 설정
+  config:
+    region: minio
+    s3ForcePathStyle: "true"
+    s3Url: http://minio-svc.devops.svc.cluster.local:9000
+    # publicUrl: http://minio-svc.devops.svc.cluster.local:9000  # 필요시 공개 URL 설정
+  
+  # 백업 암호화 설정 (선택사항)
+  # credential:
+  #   name: cloud-credentials
+  #   key: cloud
+  
+  # 백업 유효성 검사 설정
+  validationFrequency: 1h0m0s
+
+---
+# 볼륨 스냅샷 위치 설정 (PV 스냅샷용)
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: default
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+    app.kubernetes.io/managed-by: Helm
+    component: volume-snapshot
+    environment: devops
+spec:
+  # 스냅샷 제공자 (AWS 호환)
+  provider: aws
+  
+  # 스냅샷 설정
+  config:
+    region: minio
+    # 필요시 추가 설정
+    # snapshotTags: "velero.io/backup-name={{.Backup.Name}},velero.io/backup-uid={{.Backup.UID}}"
+
+---
+# 추가 백업 스토리지 위치 (선택사항 - 외부 스토리지)
+# apiVersion: velero.io/v1
+# kind: BackupStorageLocation
+# metadata:
+#   name: external-storage
+#   namespace: velero
+#   labels:
+#     app.kubernetes.io/name: velero
+#     component: backup-storage
+#     environment: external
+# spec:
+#   provider: aws
+#   objectStorage:
+#     bucket: external-velero-backups
+#   config:
+#     region: us-west-2
+#     s3ForcePathStyle: "false"
+#     s3Url: https://s3.us-west-2.amazonaws.com
+#   credential:
+#     name: aws-credentials
+#     key: cloud
+
+---
+# Velero 서버 설정 (ConfigMap)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velero-server-config
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    component: server-config
+    environment: devops
+data:
+  # Velero 서버 설정
+  server-config.yaml: |
+    # 백업 처리 설정
+    backupSyncPeriod: 1h0m0s
+    gcFrequency: 1h0m0s
+    restoreOnlyMode: false
+    
+    # 리소스 타임아웃 설정
+    resourceTimeout: 10m0s
+    
+    # 로그 레벨
+    logLevel: info
+    
+    # 백업 처리 설정
+    backupItemOperationTimeout: 4h0m0s
+    restoreItemOperationTimeout: 4h0m0s
+    
+    # CSI 스냅샷 타임아웃
+    csiSnapshotTimeout: 10m0s
+    
+    # 백업 동시 처리 수
+    backupItemOperationWorkers: 1
+    restoreItemOperationWorkers: 1
+    
+    # 백업 검증 설정
+    backupValidationFrequency: 1h0m0s
+
+---
+# Velero 서버 환경 변수 (Secret)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: velero-server-env
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    component: server-env
+    environment: devops
+type: Opaque
+data:
+  # 환경 변수 (base64 인코딩 필요)
+  # AWS_ACCESS_KEY_ID: <base64-encoded-access-key>
+  # AWS_SECRET_ACCESS_KEY: <base64-encoded-secret-key>
+  
+  # MinIO 설정 (선택사항)
+  # MINIO_ACCESS_KEY: <base64-encoded-minio-access-key>
+  # MINIO_SECRET_KEY: <base64-encoded-minio-secret-key>
+
+---
+# Velero 백업 정책 설정 (ConfigMap)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velero-backup-policies
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    component: backup-policies
+    environment: devops
+data:
+  # 백업 정책 설정
+  backup-policies.yaml: |
+    # PostgreSQL 백업 정책
+    postgres-backup-policy:
+      # 포함할 리소스
+      includedResources:
+        - pods
+        - persistentvolumes
+        - persistentvolumeclaims
+        - statefulsets
+        - secrets
+        - configmaps
+        - services
+      
+      # 제외할 리소스
+      excludedResources:
+        - events
+        - pods/log
+      
+      # 네임스페이스 필터
+      includedNamespaces:
+        - devops
+      
+      # 라벨 선택자
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: postgresql
+      
+      # 볼륨 백업 설정
+      defaultVolumesToFsBackup: true
+      snapshotVolumes: true
+      
+      # 백업 훅 설정
+      hooks:
+        resources:
+        - name: postgres-backup-hook
+          includedNamespaces:
+          - devops
+          includedResources:
+          - pods
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+          pre:
+          - exec:
+              container: postgresql
+              command:
+              - /bin/bash
+              - -c
+              - |
+                echo "Starting PostgreSQL backup preparation..."
+                psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'postgres' AND pid <> pg_backend_pid();"
+                psql -U postgres -c "CHECKPOINT;"
+                echo "PostgreSQL backup preparation completed."
+              timeout: 5m0s

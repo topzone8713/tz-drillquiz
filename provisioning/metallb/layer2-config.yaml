@@ -1,0 +1,17 @@
+# MetalLB Layer2 Configuration
+# MetalLB IP 주소 풀 설정 (LoadBalancer 서비스용)
+#
+# 실제 적용된 설정을 확인하려면:
+#   kubectl get configmap config -n metallb-system -o yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 192.168.0.210-192.168.0.250

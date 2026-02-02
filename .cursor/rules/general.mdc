@@ -1,0 +1,184 @@
+---
+description: General project rules and guidelines for DrillQuiz
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# DrillQuiz Project Development Rules
+
+## Project Overview
+DrillQuiz is a quiz learning platform that provides efficient learning through problem solving, exam management, and learning progress tracking.
+
+## Technology Stack Summary
+
+### Backend
+- Python 3.12, Django 4.2.7, Django REST Framework 3.14.0
+- PostgreSQL 15, Redis, Celery
+- MinIO S3 (production), Local filesystem (development)
+
+### Frontend
+- Vue.js 2.6.14, Tailwind CSS, Bootstrap 5.3.2
+- Vue i18n 8.28.2, Axios, moment-timezone
+
+### Infrastructure
+- Docker, Kubernetes, Jenkins CI/CD
+- Velero for backups
+
+## Important Rules
+
+1. **Database**: Development environment must use PostgreSQL, not SQLite
+   - Default: `USE_POSTGRES=true`
+   - Development connection: `db-dev.drillquiz.com:30432` or `localhost:54486` (port-forward)
+2. **No Hardcoded Text**: All user-facing text must use translation keys
+3. **No Hardcoded Fallbacks**: `$t('key') || 'text'` is forbidden
+4. **UTC Storage**: All timestamps stored in UTC
+5. **Server Translation Priority**: Server translations take precedence over frontend
+6. **Mobile-First**: Responsive design with mobile-first approach
+7. **Security First**: Security scanning in CI/CD pipeline
+8. **Backup Before Migration**: Always backup before database migrations
+9. **Currency Unit**: All monetary amounts must be displayed in USDT only
+   - **No USD ($) or KRW (₩) symbols**: All prices, amounts, and monetary values must use USDT
+   - **Format**: `{amount} USDT` (e.g., `29.99 USDT`, `1000 USDT`)
+   - **No currency conversion utilities needed**: The app uses USDT as the single currency unit
+10. **Native App Menu Visibility**: Regular users or tutors accessing the app from iOS/Android native apps should only see the learning screen
+   - **Consulting menu must be hidden** when:
+     - Running in native app environment (iOS/Android)
+     - User is not an admin (regular user or tutor)
+     - App is in learning mode (`/learning` or sub-paths)
+   - See frontend rules for implementation details
+11. **Membership Level and Permission Structure**: User permission hierarchy
+   - **Permission Levels** (in order of increasing authority):
+     1. **일반회원 (User Role)**: Default role after registration
+     2. **준회원 (Associate Member)**: Status when "구독하기" button is clicked in learning screen
+        - USDT payment not completed
+        - Can access learning services (study/exam) but not paid services like coin recommendations
+     3. **회원 (Member)**: Status after USDT payment completion
+        - Can access all learning services and paid services (coin recommendations)
+     4. **튜터 (Tutor Role)**: Approved tutor with coin recommendation privileges
+     5. **관리자 (Admin Role)**: Full system access
+   - **Membership Transition Process**:
+     - 일반회원 → (click "멤버되기" in learning screen) → 준회원 (Subscription status='pending')
+     - 준회원 → (complete USDT payment) → 회원 (Subscription status='active')
+   - **Service Access Rights**:
+     - Learning services (study/exam): 모든 회원 레벨 이상 접근 가능
+     - Coin recommendations: 회원 이상 접근 가능 (준회원 접근 불가)
+     - Coin recommendation creation: 튜터 이상 접근 가능
+   - **Implementation**: Subscription model status field manages membership level
+     - `status='pending'`: 준회원 (associate member)
+     - `status='active'`: 회원 (member, payment completed)
+12. **Learning Mode Subscription UI Rules**: Payment information must be hidden in learning mode
+   - **Learning 모드(`/learning/*`) 또는 네이티브 앱(iOS/Android)에서는 결제 관련 정보 숨김**:
+     - 구독료(subscription_price) 정보 숨김
+     - 결제 방법(payment method) 정보 숨김
+     - 지갑 잔액(wallet balance) 정보 숨김
+     - 잔액 부족 경고 메시지 숨김
+   - **버튼 텍스트**:
+     - Learning 모드 또는 네이티브 앱: "멤버되기" 버튼 표시
+     - 일반 모드(컨설팅): "구독 확인" 버튼 표시
+   - **안내 메시지**:
+     - Learning 모드 또는 네이티브 앱: "구독 후 튜터의 모든 학습 콘텐츠를 이용할 수 있습니다." 메시지 표시
+     - 일반 모드: 기존 결제 정보 및 안내 메시지 표시
+13. **Learning Exam Access Rules**: 시험 접근 권한 규칙
+   - **"내 시험" 필터에서 포함되는 시험**:
+     1. 자신이 생성한 시험 (공개/비공개 무관)
+     2. 구독한 시험 (ExamSubscription)
+     3. **스터디 멤버의 시험**: 구독 여부와 관계없이 스터디 멤버로 참여한 스터디의 튜터가 만든 시험
+        - StudyMember를 통해 멤버로 등록된 스터디의 튜터(created_by)가 만든 시험
+        - `is_active` 상태와 관계없이 모든 StudyMember 포함
+        - **구독(Subscription) 상태와 무관**: 스터디 멤버라면 해당 스터디의 튜터가 만든 시험 접근 가능
+     4. 구독한 튜터의 시험 (Subscription, pending 또는 active 상태)
+   - **중요**: 스터디 멤버는 구독 여부와 관계없이 해당 스터디의 튜터가 만든 시험을 볼 수 있어야 함
+   - **시험 생성 권한**: 튜터만 시험 생성 가능 (`IsTutorOrReadOnly` 권한)
+   - **튜터 시험 접근**: 튜터는 자신이 생성한 시험을 항상 볼 수 있음 (공개/비공개 무관, `my_exams` 필터와 무관)
+
+## Multilingual Support
+- **6 Languages**: ko, en, ja, zh, es, fr
+- **Backend**: Translation files in `backend/translations/message_XX.py`
+- **Frontend**: Vue i18n with `$t('key')` function
+- **Content**: All user-generated content has 6 language fields
+
+## Timezone Handling
+- **Storage**: All timestamps in UTC
+- **Display**: Convert to user timezone in frontend
+- **Format**: ISO 8601 (`2025-12-02T09:00:00+00:00`)
+
+## Debugging and Logging
+- **⚠️ 중요**: `console.log`, `console.warn`, `console.error`, `console.debug` 직접 사용 금지
+- **공통 디버깅 함수 사용 필수**:
+  - `forceDebugLog(message, data)`: 항상 출력되는 중요한 로그
+  - `debugLog(message, data)`: 디버그 모드(`sessionStorage.getItem('debug') === 'true'`)에서만 출력
+  - `logApiError(endpoint, error)`: API 에러 로깅 (항상 출력)
+- **사용 방법**: `window.forceDebugLog('로그', { data })` 또는 `import { debugLog } from '@/utils/debugUtils'`
+- **디버그 모드 활성화**: `sessionStorage.setItem('debug', 'true')` 또는 `window.enableDebugMode()`
+- **자세한 내용**: `docs/DEBUGGING_GUIDE.md` 참조
+
+## Server Domains
+- **⚠️ 중요**: 운영 서버 도메인은 `drillquiz.com`입니다
+  - **올바른 도메인**: `https://us.drillquiz.com` (운영), `https://dev.drillquiz.com` (개발)
+  - **이메일 템플릿**: 모든 이메일 템플릿의 `site_url`은 `FRONTEND_URL` 환경 변수를 사용하며, 기본값은 `https://us.drillquiz.com`입니다.
+  - **코드에서 하드코딩 금지**: 도메인은 환경 변수를 사용해야 합니다.
+
+## E2E Testing
+
+### Testing Framework
+- **Tool**: Playwright (`@playwright/test`)
+- **Test Directory**: `tests/e2e/`
+- **Configuration**: `playwright.config.js`
+- **Test Structure**: 
+  - `tests/e2e/usecases/` - 시나리오별 테스트 파일
+  - `tests/e2e/helpers/` - 헬퍼 함수 (api.js, auth.js)
+  - `tests/e2e/fixtures/` - 테스트 데이터 (users.json)
+
+### Test Execution
+- **All tests**: `npm run test:e2e`
+- **UI mode (interactive)**: `npm run test:e2e:ui`
+- **Headed mode (visible browser)**: `npm run test:e2e:headed`
+- **Debug mode**: `npm run test:e2e:debug`
+- **View report**: `npm run test:e2e:report`
+
+### Environment Variables
+- `PLAYWRIGHT_BASE_URL`: Frontend URL (default: `http://localhost:8080`)
+- `PLAYWRIGHT_API_URL`: Backend API URL (default: `http://localhost:8000/api`)
+
+### Test Results
+- **HTML Report**: `test-results/html-report/index.html`
+- **JSON Report**: `test-results/results.json`
+- **JUnit Report**: `test-results/junit.xml` (for CI/CD integration)
+- **Screenshots**: `test-results/*/test-failed-*.png` (on failure)
+- **Videos**: `test-results/.playwright-artifacts-*/` (on failure)
+- **Traces**: `test-results/*/trace.zip` (on retry)
+
+### Test Writing Guidelines
+1. **Use helpers**: Always use helper functions from `tests/e2e/helpers/` for API calls and authentication
+2. **Use fixtures**: Test user data should be in `tests/e2e/fixtures/users.json`
+3. **Scenario-based**: Tests should follow real user scenarios from `docs/USER_SCENARIOS.md`
+4. **Error handling**: Tests should handle failures gracefully with proper error messages
+5. **Cleanup**: Use `afterEach` hooks to clean up test data when necessary
+
+### Prerequisites
+- Backend server must be running (`python manage.py runserver`)
+- Frontend server must be running (`npm run serve`)
+- Test users must be created (see `tests/e2e/fixtures/users.json`)
+
+## Documentation
+- **Technical Spec**: `docs/TECHNICAL_SPEC.md`
+- **Database Schema**: `docs/DATABASE_SCHEMA.md`
+- **API Specification**: `docs/FRONTEND_API_SPECIFICATION.md`
+- **i18n Guide**: `docs/I18N_TIMEZONE_GUIDE.md`
+- **CI/CD Guide**: `ci/README.md`
+- **Debugging Guide**: `docs/DEBUGGING_GUIDE.md`
+- **E2E Test Plan**: `docs/E2E_TEST_PLAN.md`
+
+
+
+
+
+
+
+
+
+
+
+
+
+

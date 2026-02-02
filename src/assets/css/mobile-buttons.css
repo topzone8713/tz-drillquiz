@@ -1,0 +1,309 @@
+/* 모바일 원형 버튼 공통 스타일 */
+/* 모든 페이지에서 재사용되는 모바일 버튼 스타일 */
+
+@media (max-width: 768px) {
+  /* Action 버튼들을 원형 버튼으로 변경 (action-btn-large 제외) */
+  .action-btn:not(.action-btn-large),
+  .action-btn-primary:not(.action-btn-large),
+  .action-btn-success:not(.action-btn-large),
+  .action-btn-danger:not(.action-btn-large),
+  .action-btn-warning:not(.action-btn-large),
+  .action-btn-info:not(.action-btn-large),
+  .action-btn-secondary:not(.action-btn-large),
+  .action-btn-voice:not(.action-btn-large) {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    gap: 0;
+    min-width: auto;
+  }
+  
+  /* Action 버튼 텍스트 숨김 (action-btn-large 제외) */
+  .action-btn:not(.action-btn-large) span,
+  .action-btn-primary:not(.action-btn-large) span,
+  .action-btn-success:not(.action-btn-large) span,
+  .action-btn-danger:not(.action-btn-large) span,
+  .action-btn-warning:not(.action-btn-large) span,
+  .action-btn-info:not(.action-btn-large) span,
+  .action-btn-secondary:not(.action-btn-large) span,
+  .action-btn-voice:not(.action-btn-large) span,
+  .action-label {
+    display: none !important;
+  }
+  
+  .action-label.mobile-only {
+    display: none !important;
+  }
+  
+  /* Card action 버튼도 원형으로 */
+  .card-action-btn .action-label {
+    display: none;
+  }
+  
+  .card-action-btn {
+    padding: 8px;
+    gap: 0;
+  }
+  
+  /* 특수 버튼들도 원형으로 */
+  .solved-btn {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    gap: 0;
+    min-width: auto;
+  }
+  
+  .solved-btn span {
+    display: none;
+  }
+  
+  .create-study-btn {
+    padding: 0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    min-width: auto !important;
+    max-width: none !important;
+    font-size: 14px !important;
+    gap: 0 !important;
+  }
+  
+  .create-study-btn .action-label {
+    display: none !important;
+  }
+  
+  .mobile-study-btn {
+    padding: 0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    border-radius: 50% !important;
+    font-size: 14px !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+  }
+  
+  .mobile-study-btn span {
+    display: none !important;
+  }
+  
+  .mobile-study-btn i {
+    font-size: 14px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* StudyProgressDashboard의 일반 버튼 (btn-group 안의 버튼 제외, withdrawal-btn 제외) */
+  .btn:not(.btn-group .btn):not(.withdrawal-btn) {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    gap: 0;
+    min-width: auto;
+  }
+  
+  .btn:not(.btn-group .btn):not(.withdrawal-btn) span {
+    display: none;
+  }
+  
+  /* btn-group 안의 버튼은 원형 버튼으로 만들지 않음 */
+  .btn-group .btn {
+    padding: 10px 16px;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    min-width: auto;
+    font-size: 14px;
+    gap: 8px;
+  }
+  
+  /* 태그 필터 버튼 텍스트 숨김 (아이콘만 표시) */
+  .tag-filter-btn {
+    font-size: 0 !important;
+    padding: 8px !important;
+    gap: 0 !important;
+  }
+  
+  .tag-filter-btn i {
+    font-size: 1rem !important;
+  }
+  
+  /* 태그 필터 버튼 내 텍스트 숨김 */
+  .tag-filter-btn:not(:has(.badge)) {
+    /* 텍스트 노드 숨김을 위해 부모의 font-size: 0 사용 */
+  }
+  
+  /* 태그 필터 버튼의 badge는 유지 */
+  .tag-filter-btn .badge {
+    font-size: 0.75rem !important;
+    margin-left: 4px !important;
+  }
+  
+  /* Profile 페이지의 control-btn도 원형 버튼으로 */
+  .control-btn {
+    padding: 0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    min-width: auto !important;
+    min-height: auto !important;
+    font-size: 14px !important;
+    gap: 0 !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* 더 작은 화면에서는 버튼 크기 조정 */
+  .action-btn,
+  .action-btn-primary,
+  .action-btn-success,
+  .action-btn-danger,
+  .action-btn-warning,
+  .action-btn-info,
+  .action-btn-secondary,
+  .action-btn-voice,
+  .solved-btn,
+  .create-study-btn,
+  .mobile-study-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    font-size: 12px;
+  }
+  
+  .btn:not(.btn-group .btn):not(.withdrawal-btn),
+  .control-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+}
+
+/* 공통 토스트 알림 스타일 */
+.toast-notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 3000; /* 토스트 알림 */
+  min-width: 300px;
+  max-width: 400px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideInRight 0.3s ease-out;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .toast-notification {
+    top: 60px;
+  }
+}
+
+.toast-notification.alert-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.toast-notification.alert-error {
+  background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+  color: white;
+}
+
+.toast-notification.alert-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  color: #212529;
+}
+
+.toast-notification.alert-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  color: white;
+}
+
+/* 호환성을 위한 별칭 클래스 */
+.toast-notification.success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.toast-notification.error {
+  background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+  color: white;
+}
+
+.toast-notification.warning {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  color: #212529;
+}
+
+.toast-notification.info {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  color: white;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 15px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+

@@ -1,0 +1,16 @@
+[Unit]
+Description=Vagrant Reload and SSH Tunnel Service
+After=network.target default.target
+
+[Service]
+Type=oneshot
+Environment="WORKSPACE_BASE=%h/workspaces"
+ExecStart=%h/workspaces/tz-drillquiz/provisioning/auto-reload-and-tunnel.sh
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=900
+KillMode=none
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

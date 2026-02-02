@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.vagrant.autostart</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/dhong/workspaces/tz-drillquiz/provisioning/auto-reload-and-tunnel.sh</string>
+    </array>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>WORKSPACE_BASE</key>
+        <string>/Users/dhong/workspaces</string>
+        <key>PATH</key>
+        <string>/opt/vagrant/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VirtualBox.app/Contents/MacOS</string>
+        <key>AUTO_BACKUP_ENABLED</key>
+        <string>true</string>
+    </dict>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <false/>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/dhong/workspaces/tz-drillquiz/provisioning/logs/vagrant-autostart.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/dhong/workspaces/tz-drillquiz/provisioning/logs/vagrant-autostart.error.log</string>
+    
+    <key>StartInterval</key>
+    <integer>0</integer>
+    
+    <key>ThrottleInterval</key>
+    <integer>0</integer>
+    
+    <key>ExitTimeOut</key>
+    <integer>900</integer>
+</dict>
+</plist>

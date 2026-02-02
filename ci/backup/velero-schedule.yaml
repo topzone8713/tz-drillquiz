@@ -1,0 +1,137 @@
+# Velero 스케줄 백업 설정
+# PostgreSQL 데이터베이스 자동 백업 스케줄
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: devops-postgres-daily-backup
+  namespace: velero
+  labels:
+    app: postgres
+    component: database
+    environment: devops
+    schedule-type: daily
+spec:
+  # 스케줄 설정 (매일 새벽 2시)
+  schedule: "0 2 * * *"
+  
+  # 백업 템플릿
+  template:
+    # 백업할 네임스페이스
+    includedNamespaces:
+    - devops
+    
+    # 백업할 리소스 타입
+    includedResources:
+    - pods
+    - persistentvolumes
+    - persistentvolumeclaims
+    - statefulsets
+    - secrets
+    - configmaps
+    - services
+    
+    # 클러스터 스코프 리소스 포함
+    includeClusterResources: true
+    
+    # 볼륨 백업 설정 (PV 데이터 포함)
+    defaultVolumesToFsBackup: true
+    snapshotVolumes: true
+    
+    # 백업 스토리지 위치
+    storageLocation: default
+    
+    # 백업 유지 기간 (7일 - 일일 백업이므로)
+    ttl: 168h0m0s
+    
+    # 타임아웃 설정
+    csiSnapshotTimeout: 10m0s
+    itemOperationTimeout: 4h0m0s
+    
+    # 백업 전 훅 (PostgreSQL 정리)
+    hooks:
+      resources:
+      - name: postgres-backup-hook
+        includedNamespaces:
+        - devops
+        includedResources:
+        - pods
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: postgresql
+        pre:
+        - exec:
+            container: postgresql
+            command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Starting PostgreSQL backup preparation..."
+              # 데이터베이스 연결 정리
+              psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'postgres' AND pid <> pg_backend_pid();"
+              # 체크포인트 강제 실행
+              psql -U postgres -c "CHECKPOINT;"
+              echo "PostgreSQL backup preparation completed."
+    
+    # 메타데이터 (라벨만 지원)
+    metadata:
+      labels:
+        backup-type: postgres
+        environment: devops
+        schedule: daily
+        created-by: velero-schedule
+---
+# 주간 백업 스케줄 (더 긴 보관 기간)
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: devops-postgres-weekly-backup
+  namespace: velero
+  labels:
+    app: postgres
+    component: database
+    environment: devops
+    schedule-type: weekly
+spec:
+  # 스케줄 설정 (매주 일요일 새벽 3시)
+  schedule: "0 3 * * 0"
+  
+  # 백업 템플릿
+  template:
+    # 백업할 네임스페이스
+    includedNamespaces:
+    - devops
+    
+    # 백업할 리소스 타입
+    includedResources:
+    - pods
+    - persistentvolumes
+    - persistentvolumeclaims
+    - statefulsets
+    - secrets
+    - configmaps
+    - services
+    
+    # 클러스터 스코프 리소스 포함
+    includeClusterResources: true
+    
+    # 볼륨 백업 설정 (PV 데이터 포함)
+    defaultVolumesToFsBackup: true
+    snapshotVolumes: true
+    
+    # 백업 스토리지 위치
+    storageLocation: default
+    
+    # 백업 유지 기간 (30일 - 주간 백업이므로)
+    ttl: 720h0m0s
+    
+    # 타임아웃 설정
+    csiSnapshotTimeout: 10m0s
+    itemOperationTimeout: 4h0m0s
+    
+    # 메타데이터 (라벨만 지원)
+    metadata:
+      labels:
+        backup-type: postgres
+        environment: devops
+        schedule: weekly
+        created-by: velero-schedule

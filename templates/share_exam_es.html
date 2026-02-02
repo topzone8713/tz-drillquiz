@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen Compartido</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .info-item {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+            display: inline-block;
+            width: 120px;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 12px;
+        }
+        .link {
+            word-break: break-all;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Examen Compartido</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hola,</p>
+            
+            <p><strong>{{ sharer_name }}</strong> ha compartido un examen.</p>
+            
+            <div class="info-box">
+                <div class="info-item">
+                    <span class="info-label">Examen:</span>
+                    <span class="info-value">{{ exam_title }}</span>
+                </div>
+            </div>
+            
+            <p>Haga clic en el botón a continuación para ver el examen:</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ share_url }}" class="button" style="color: #ffffff !important;">Ver Examen</a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 14px; color: #6c757d;">
+                O copie y pegue el enlace a continuación en su navegador:<br>
+                <a href="{{ share_url }}" class="link">{{ share_url }}</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 DrillQuiz. Todos los derechos reservados.</p>
+            <p>Este correo electrónico fue solicitado por {{ sharer_name }}.</p>
+        </div>
+    </div>
+</body>
+</html>
+

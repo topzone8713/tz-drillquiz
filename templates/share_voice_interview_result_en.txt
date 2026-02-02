@@ -1,0 +1,17 @@
+Voice Interview Result Shared
+
+Hello,
+
+{{ sharer_name }} has shared a Voice Interview result.
+
+Exam: {{ exam_title }}
+Completed: {{ completed_at }}
+Score: {{ score }}/{{ total_score }}
+Accuracy: {{ accuracy }}%
+
+Click the link below to view the result:
+{{ result_url }}
+
+© 2024 DrillQuiz. All rights reserved.
+This email was requested by {{ sharer_name }}.
+

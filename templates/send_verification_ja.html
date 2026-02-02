@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrillQuiz メール認証</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DrillQuiz メール認証</h1>
+    </div>
+    <div class="content">
+        <h2>こんにちは、{{ username }}さん！</h2>
+        <p>DrillQuizでメール認証を完了してください。</p>
+        <p>以下のボタンをクリックしてメール認証を完了してください：</p>
+
+        <div style="text-align: center;">
+            <a href="{{ verification_url }}" class="button">メール認証</a>
+        </div>
+
+        <p>ボタンが機能しない場合は、以下のリンクをコピーしてブラウザに貼り付けてください：</p>
+        <p style="word-break: break-all; background: #e9ecef; padding: 10px; border-radius: 5px;">
+            {{ verification_url }}
+        </p>
+
+        <p><strong>重要な注意事項：</strong></p>
+        <ul>
+            <li>このリンクは24時間のみ有効です。</li>
+            <li>このメールをリクエストしていない場合は、無視してください。</li>
+        </ul>
+    </div>
+    <div class="footer">
+        <p>© 2024 DrillQuiz. All rights reserved.</p>
+    </div>
+</body>
+</html>
+

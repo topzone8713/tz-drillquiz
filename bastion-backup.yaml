@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cni.projectcalico.org/containerID: 5c13f8b71f78859b1a1a440a68190b5dd7c9ac6573023af54f26c0afe3ac2327
+    cni.projectcalico.org/podIP: 10.233.85.145/32
+    cni.projectcalico.org/podIPs: 10.233.85.145/32
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"bastion","namespace":"devops-dev"},"spec":{"containers":[{"args":["-c","while true; do echo $(date -u) \u003e\u003e /data/out.txt; sleep 5; done"],"command":["/bin/sh"],"image":"doohee323/devops-utils2:latest","name":"bastion","resources":{"requests":{"cpu":"1000m","memory":"1000Mi"}},"volumeMounts":[{"mountPath":"/data","name":"persistent-storage"}]}],"imagePullSecrets":[{"name":"tz-registrykey"}],"volumes":[{"name":"persistent-storage","persistentVolumeClaim":{"claimName":"bastion-pvc"}}]}}
+  creationTimestamp: "2025-08-17T05:37:08Z"
+  name: bastion
+  namespace: devops-dev
+  resourceVersion: "15654835"
+  uid: 74e406e1-165a-481e-8791-bb44cb79ea14
+spec:
+  containers:
+  - args:
+    - -c
+    - while true; do echo $(date -u) >> /data/out.txt; sleep 5; done
+    command:
+    - /bin/sh
+    image: doohee323/devops-utils2:latest
+    imagePullPolicy: Always
+    name: bastion
+    resources:
+      requests:
+        cpu: "1"
+        memory: 1000Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /data
+      name: persistent-storage
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-vnnhn
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  imagePullSecrets:
+  - name: tz-registrykey
+  nodeName: kube-master
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: persistent-storage
+    persistentVolumeClaim:
+      claimName: bastion-pvc
+  - name: kube-api-access-vnnhn
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2025-09-13T06:04:01Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-17T05:37:08Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2025-09-13T06:04:01Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2025-09-13T06:04:01Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-17T05:37:08Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://3f1672fddef224b7adce77a4da267964875862ac73eb8af12abd5382b51d290e
+    image: docker.io/doohee323/devops-utils2:latest
+    imageID: docker.io/doohee323/devops-utils2@sha256:b6b1061deeed89ca8c6a2099182e89eeaab9bba9f5ac353a7c84cb6a81ecd023
+    lastState:
+      terminated:
+        containerID: containerd://5ff2f5191eeca85fd3c83a2ee12b0b73cd95bbccf24136a8175e707236e2328f
+        exitCode: 255
+        finishedAt: "2025-09-13T06:03:16Z"
+        reason: Unknown
+        startedAt: "2025-09-10T14:03:03Z"
+    name: bastion
+    ready: true
+    restartCount: 2
+    started: true
+    state:
+      running:
+        startedAt: "2025-09-13T06:04:00Z"
+  hostIP: 10.0.0.217
+  hostIPs:
+  - ip: 10.0.0.217
+  phase: Running
+  podIP: 10.233.85.145
+  podIPs:
+  - ip: 10.233.85.145
+  qosClass: Burstable
+  startTime: "2025-08-17T05:37:08Z"

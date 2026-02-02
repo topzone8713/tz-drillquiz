@@ -1,0 +1,108 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Management Scripts - 실행 결과물 제외
+statistics_backup_*.txt
+*.backup
+*_bak
+*_bak.*
+*.bak
+*.log
+debug_*.py
+# 재사용 가능한 유틸리티는 Git에 포함 (예외 처리)
+!quiz/utils/debug_utils.py
+# test_*.py  # 테스트 파일들은 Git에 포함해야 함
+
+# Database backups directory
+scripts/database/backups/
+
+# Vue
+node_modules/
+/dist
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Static files
+staticfiles/
+static/
+
+# Coverage
+htmlcov/
+.coverage 
+/.env
+
+# Test Results (Playwright E2E tests)
+test-results/
+playwright-report/
+
+# Security Scan Results (보안상 민감한 정보 포함)
+*.sarif
+semgrep-*.sarif
+security-scan-*.json
+
+# Mobile app (not used - web only)
+android/
+ios/
+ios-dev/
+ios-devops/
+capacitor.config.json
+capacitor-ios-project.tar.gz
+patches/
+
+# iOS - 로컬 빌드용 심볼릭 링크 및 중복 workspace
+ios/App/DrillQuiz.xcworkspace/
+# Xcode 사용자별 설정 (제외)
+*.xcuserdata/
+*.xcworkspace/xcuserdata/
+/refer
+
+# Provisioning resources (sensitive configuration files)
+provisioning/resources/
+
+# Symbolic links to external projects (managed separately)
+tz-vibecoding/
+tz-k8s-vagrant/

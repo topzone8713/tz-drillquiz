@@ -1,0 +1,22 @@
+{
+  "admin": {
+    "username": "admin",
+    "password": "admin123",
+    "email": "admin@example.com"
+  },
+  "parent": {
+    "username": "parent_test",
+    "password": "test123",
+    "email": "parent@example.com"
+  },
+  "student": {
+    "username": "student_test",
+    "password": "test123",
+    "email": "student@example.com"
+  },
+  "teacher": {
+    "username": "teacher_test",
+    "password": "test123",
+    "email": "teacher@example.com"
+  }
+}

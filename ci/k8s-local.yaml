@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drillquiz-dev
+spec:
+  selector:
+    matchLabels:
+      app: drillquiz-dev
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        org: tz
+        team: devops
+        environment: dev
+        app: drillquiz-dev
+    spec:
+      imagePullSecrets:
+        - name: tz-registrykey
+      containers:
+      - name: drillquiz-dev
+        image: doohee323/drillquiz:20251020204959
+        imagePullPolicy: Always
+#        readinessProbe:
+#          httpGet:
+#            path: /health
+#            port: 8000
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500Mi
+          limits:
+            cpu: 1000m
+            memory: 1000Mi
+        envFrom:
+        - configMapRef:
+            name: drillquiz-configmap-dev
+        - secretRef:
+            name: drillquiz-secret-dev
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: drillquiz-dev
+spec:
+  type: NodePort
+  selector:
+    app: drillquiz-dev
+  ports:
+    - port: 80
+      name: api-80
+      targetPort: 8000
+#    - port: 443
+#      name: api-443
+#      targetPort: 443
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: drillquiz-configmap-dev
+data:
+  ENVIRONMENT: "production"
+  USE_DOCKER: "true"
+  POSTGRES_DB: "drillquiz"
+  POSTGRES_USER: "admin"
+  POSTGRES_HOST: "devops-postgres-postgresql.devops-dev.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  SECRET_KEY: drillquiz-secret-dev
+  CURRENT_DOMAIN: "us-dev.drillquiz.com"
+  ALLOWED_HOSTS: "localhost,127.0.0.1,devops-dev.drillquiz.com,leetcode-dev.drillquiz.com,us-dev.drillquiz.com"
+  CORS_ALLOWED_ORIGINS: "http://localhost:8080,https://devops-dev.drillquiz.com,https://leetcode-dev.drillquiz.com,https://us-dev.drillquiz.com"
+  USE_MINIO: "true"
+  MINIO_ENDPOINT: "http://minio.devops.svc.cluster.local:9000"
+  MINIO_BUCKET_NAME: "drillquiz-dev"
+  GOOGLE_OAUTH_CLIENT_ID: "195449497097-rf2f22ampv4imqb80fvibhr7oq5oc7km.apps.googleusercontent.com"
+  GOOGLE_OAUTH_REDIRECT_URI: "https://us-dev.drillquiz.com/api/google-oauth/"
+  VUE_APP_GOOGLE_CLIENT_ID: "195449497097-rf2f22ampv4imqb80fvibhr7oq5oc7km.apps.googleusercontent.com"
+  VUE_APP_GOOGLE_CLIENT_SECRET: eW91ci1nb29nbGUtb2F1dGgtc2VjcmV0
+  VUE_APP_GOOGLE_REDIRECT_URI: "https://us-dev.drillquiz.com/api/google-oauth/"
+  APPLE_CLIENT_ID: "com.drillquiz.web"
+  APPLE_TEAM_ID: "338MR492VK"
+  CELERY_BROKER_URL: "redis://redis-cluster-drillquiz-master.devops.svc.cluster.local:6379/4"
+  CELERY_RESULT_BACKEND: "redis://redis-cluster-drillquiz-master.devops.svc.cluster.local:6379/5"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: drillquiz-dev
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # Performance optimization
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+    nginx.ingress.kubernetes.io/gzip-types: "text/plain, text/css, application/json, application/javascript, text/xml, application/xml, application/xml+rss, text/javascript, application/xml"
+
+    # Backend connection optimization
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+
+    nginx.ingress.kubernetes.io/whitelist-source-range: "67.180.196.114/24,96.45.36.254/24"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      
+      # Content Security Policy - Allow Google Analytics 4 and OAuth
+      add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com; script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://analytics.google.com https://accounts.google.com; img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' data: https://cdnjs.cloudflare.com;" always;
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: us-dev.drillquiz.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: drillquiz-dev
+            port:
+              number: 8000
+  tls:
+    - hosts:
+        - us-dev.drillquiz.com
+      secretName: drillquiz-dev
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: drillquiz-secret-dev
+type: Opaque
+data:
+  SECRET_KEY: eW91ci1wcm9kdWN0aW9uLXNlY3JldC1rZXktaGVyZQ==
+  POSTGRES_PASSWORD: eW91ci1wb3N0Z3Jlcy1wYXNzd29yZA==
+  MINIO_ACCESS_KEY: UnFyR1ZxR0hDaEExZHE4cGc4dUI=
+  MINIO_SECRET_KEY: eW91ci1taW5pby1zZWNyZXQta2V5
+  USE_MINIO: dHJ1ZQ==
+  MINIO_BUCKET_NAME: ZHJpbGxxdWl6LWRldg==
+  OPENAI_API_KEY: eW91ci1vcGVuYWktYXBpLWtleQ==
+  GOOGLE_OAUTH_CLIENT_SECRET: eW91ci1nb29nbGUtb2F1dGgtc2VjcmV0
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drillquiz-celery-worker-dev
+spec:
+  selector:
+    matchLabels:
+      app: drillquiz-celery-worker-dev
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        org: tz
+        team: devops
+        environment: dev
+        app: drillquiz-celery-worker-dev
+    spec:
+      imagePullSecrets:
+        - name: tz-registrykey
+      containers:
+      - name: celery-worker
+        image: doohee323/drillquiz:20251020204959
+        imagePullPolicy: Always
+        command: ["celery", "-A", "drillquiz", "worker", "--loglevel=info", "--concurrency=2"]
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        envFrom:
+        - configMapRef:
+            name: drillquiz-configmap-dev
+        - secretRef:
+            name: drillquiz-secret-dev

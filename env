@@ -1,0 +1,58 @@
+# ========================================
+# DrillQuiz 환경 설정 (플레이스홀더 - 실제 값은 로컬/CI에서 설정)
+# ========================================
+
+# 환경 구분 (development/production)
+ENVIRONMENT=production
+
+# ========================================
+# Django 설정
+# ========================================
+DEBUG=True
+SECRET_KEY=your-production-secret-key-here
+ALLOWED_HOSTS=localhost,127.0.0.1,us-dev.drillquiz.com
+
+# ========================================
+# 데이터베이스 설정
+# ========================================
+USE_DOCKER=false
+POSTGRES_DB=drillquiz
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=DevOps!323
+POSTGRES_HOST=localhost
+POSTGRES_PORT=64671
+
+# ========================================
+# MinIO Storage Configuration
+# ========================================
+USE_MINIO=True
+MINIO_ENDPOINT=http://minio.devops.svc.cluster.local:9000
+MINIO_BUCKET_NAME=drillquiz-dev
+
+# ========================================
+# 서버 설정
+# ========================================
+DJANGO_HOST=us-dev.drillquiz.com
+DJANGO_PORT=443
+FRONTEND_HOST=us-dev.drillquiz.com
+FRONTEND_PORT=443
+
+# ========================================
+# CORS 설정 (개발 환경)
+# ========================================
+CORS_ALLOWED_ORIGINS=http://localhost:8080,http://devops.localhost:8080,http://leetcode.localhost:8080,https://us-dev.drillquiz.com
+CSRF_TRUSTED_ORIGINS=http://localhost:8080,http://devops.localhost:8080,http://leetcode.localhost:8080,https://us-dev.drillquiz.com
+
+# ========================================
+# Apple Sign in with Apple 설정
+# ========================================
+APPLE_CLIENT_ID=com.drillquiz.app.web
+APPLE_TEAM_ID=your-apple-team-id-here
+
+# ========================================
+# AI (실제 키는 환경 변수 또는 시크릿으로 설정)
+# ========================================
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_MODEL=gpt-3.5-turbo
+GEMINI_API_KEY=your-gemini-api-key-here
+GEMINI_MODEL=gemini-2.5-flash

@@ -1,0 +1,6 @@
+# Frontend build env (Docker/CI 기본값). 로컬에서 덮어쓸 수 있음.
+# build:prod와 동일한 운영 API 설정
+VUE_APP_ENVIRONMENT=production
+VUE_APP_API_HOST=us.drillquiz.com
+VUE_APP_API_PORT=443
+VUE_APP_API_PROTOCOL=https

@@ -1,0 +1,733 @@
+pipeline {
+    agent {
+        kubernetes {
+            label 'docker'
+            defaultContainer 'docker'
+        }
+    }
+    
+    environment {
+        GIT_BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main'}"
+        GIT_COMMITTER_EMAIL = "doohee323@gmail.com"
+
+        BUILD_NUMBER = "${env.BUILD_NUMBER ?: 'latest'}"
+        DOCKER_NAME = "drillquiz"
+        FRONT_DOCKER_NAME = "drillquiz-frontend"
+        APP_NAME = "drillquiz"
+        DEPLOYMENT_NAME = 'drillquiz'
+        NAMESPACE = "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'main' || (env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'devops' : 'devops-dev'}"
+        NODE_ENV = "development"
+        K8S_FILE = "k8s.yaml"
+
+        KUBECTL = "kubectl -n ${NAMESPACE}"
+        // Try both possible credential IDs - Jenkins credential ID might be 'my-ubuntu.config' or 'kubeconfig-jenkins'
+        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig-jenkins'
+
+        GIT_CREDENTIAL = 'github-token'
+
+        REGISTRY = 'doohee323'
+        DOCKERHUB_CREDENTIALS_ID = 'DOCKERHUB_CREDENTIALS_ID'
+
+        // Domain configuration
+        BASE_DOMAIN = "${BASE_DOMAIN ?: 'drillquiz.com'}"
+        
+        GIT_USERNAME = 'doohee323'
+        GIT_REPO_NAME = 'tz-argocd-repo'
+        
+        // Credentials and ArgoCD configuration are loaded in 'Load Credentials' stage to handle optional credentials gracefully
+        
+        // Security scan control variables
+        // QA branch: Full security scanning
+        // Main branch (Production): Critical security only
+        // Other branches: Disabled for performance
+        
+        // Critical security for production (Main branch)
+        CONTAINER_SCAN_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') in ['qa', 'main'] ? 'false' : 'false'}"
+        SBOM_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') in ['qa', 'main'] ? 'false' : 'false'}"
+        IMAGE_SIGNING_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') in ['qa', 'main'] ? 'false' : 'false'}"
+        
+        // Full security scanning (QA only)
+        SAST_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'true' : 'false'}"
+        SCA_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'true' : 'false'}"
+        IAC_SCAN_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'true' : 'false'}"
+        DAST_SCAN_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'true' : 'false'}"
+        PROVENANCE_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'true' : 'false'}"
+        SECURITY_GATE_YN = 'false' // "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'true' : 'false'}"
+        
+        // DAST scan configuration
+        SERVICE_URL = "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'http://drillquiz-qa.devops.svc.cluster.local:80' : 'http://drillquiz.devops.svc.cluster.local:80'}"
+    }
+
+    stages {
+        stage('Load Credentials') {
+            steps {
+                script {
+                    // Load credentials using withCredentials to ensure proper resolution
+                    // Required credentials
+                    try {
+                        withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GIT_TOKEN')]) {
+                            env.GIT_TOKEN = env.GIT_TOKEN
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  GITHUB_TOKEN credential not found, using empty string"
+                        env.GIT_TOKEN = ''
+                    }
+
+                    try {
+                        withCredentials([string(credentialsId: 'DOCKER_PASSWORD', variable: 'DOCKER_PASSWORD')]) {
+                            env.DOCKER_PASSWORD = env.DOCKER_PASSWORD
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  DOCKER_PASSWORD credential not found, using empty string"
+                        env.DOCKER_PASSWORD = ''
+                    }
+
+                    try {
+                        withCredentials([string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD')]) {
+                            env.POSTGRES_PASSWORD = env.POSTGRES_PASSWORD
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  POSTGRES_PASSWORD credential not found, using empty string"
+                        env.POSTGRES_PASSWORD = ''
+                    }
+
+                    // Optional credentials - set to empty if not found
+                    try {
+                        withCredentials([string(credentialsId: 'MINIO_ACCESS_KEY', variable: 'MINIO_ACCESS_KEY')]) {
+                            env.MINIO_ACCESS_KEY = env.MINIO_ACCESS_KEY
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  MINIO_ACCESS_KEY credential not found, using empty string"
+                        env.MINIO_ACCESS_KEY = ''
+                    }
+
+                    try {
+                        withCredentials([string(credentialsId: 'MINIO_SECRET_KEY', variable: 'MINIO_SECRET_KEY')]) {
+                            env.MINIO_SECRET_KEY = env.MINIO_SECRET_KEY
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  MINIO_SECRET_KEY credential not found, using empty string"
+                        env.MINIO_SECRET_KEY = ''
+                    }
+
+                    // ArgoCD credentials
+                    try {
+                        withCredentials([string(credentialsId: 'ARGOCD_PASSWORD', variable: 'ARGOCD_PASSWORD')]) {
+                            env.ARGOCD_PASSWORD = env.ARGOCD_PASSWORD
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  ARGOCD_PASSWORD credential not found, using empty string"
+                        env.ARGOCD_PASSWORD = ''
+                    }
+
+                    // Application API keys
+                    try {
+                        withCredentials([string(credentialsId: 'GOOGLE_OAUTH_CLIENT_SECRET', variable: 'GOOGLE_OAUTH_CLIENT_SECRET')]) {
+                            env.GOOGLE_OAUTH_CLIENT_SECRET = env.GOOGLE_OAUTH_CLIENT_SECRET
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  GOOGLE_OAUTH_CLIENT_SECRET credential not found, using empty string"
+                        env.GOOGLE_OAUTH_CLIENT_SECRET = ''
+                    }
+
+                    try {
+                        withCredentials([string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')]) {
+                            env.OPENAI_API_KEY = env.OPENAI_API_KEY
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  OPENAI_API_KEY credential not found, using empty string"
+                        env.OPENAI_API_KEY = ''
+                    }
+
+                    try {
+                        withCredentials([string(credentialsId: 'GEMINI_API_KEY', variable: 'GEMINI_API_KEY')]) {
+                            env.GEMINI_API_KEY = env.GEMINI_API_KEY
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  GEMINI_API_KEY credential not found, using empty string"
+                        env.GEMINI_API_KEY = ''
+                    }
+
+                    // Email SMTP credentials
+                    try {
+                        withCredentials([string(credentialsId: 'SMTP_USERNAME', variable: 'SMTP_USERNAME')]) {
+                            env.SMTP_USERNAME = env.SMTP_USERNAME
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  SMTP_USERNAME credential not found, using empty string"
+                        env.SMTP_USERNAME = ''
+                    }
+
+                    try {
+                        withCredentials([string(credentialsId: 'SMTP_PASSWORD', variable: 'SMTP_PASSWORD')]) {
+                            env.SMTP_PASSWORD = env.SMTP_PASSWORD
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  SMTP_PASSWORD credential not found, using empty string"
+                        env.SMTP_PASSWORD = ''
+                    }
+
+                    // MinIO configuration
+                    env.MINIO_ENDPOINT = 'http://minio.devops.svc.cluster.local:9000'
+                    env.MINIO_BUCKET_NAME = 'drillquiz'
+
+                    // ArgoCD configuration
+                    env.ARGOCD_ID = "tz-admin"
+                    env.ARGOCD_SERVER = 'argocd.drillquiz.com'
+                    env.ARGOCD_REPO_URL = 'https://github.com/doohee323/tz-argocd-repo.git'
+                    // 브랜치에 따라 ArgoCD 활성화 여부 결정
+                    env.ARGOCD_ENABLED = "${(env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.CHANGE_BRANCH ?: 'main').replaceAll('^origin/', '') == 'qa' ? 'true' : 'false'}"
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                container('docker') {
+                    script {
+                        checkout scm
+                    }
+                }
+            }
+        }
+
+        stage('Pre-Build Security Scan') {
+            when {
+                anyOf {
+                    environment name: 'SAST_YN', value: 'false'
+                    environment name: 'SCA_YN', value: 'false'
+                    environment name: 'IAC_SCAN_YN', value: 'false'
+                    environment name: 'SBOM_YN', value: 'false'
+                }
+            }
+            steps {
+                container('docker') {
+                    script {
+                        try {
+                            echo "🔍 Starting pre-build security scan (Static Analysis)..."
+                            sh '''
+                                export PATH=$PATH:.:
+                                export MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+                                export MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+                                export MINIO_ENDPOINT=${MINIO_ENDPOINT}
+                                export MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+                                export BUILD_NUMBER=${BUILD_NUMBER}
+                                export REGISTRY=${REGISTRY}
+                                export APP_NAME=${APP_NAME}
+                                export DOCKER_NAME=${DOCKER_NAME}
+                                export FRONT_DOCKER_NAME=${FRONT_DOCKER_NAME}
+                                export SAST_YN=${SAST_YN}
+                                export SCA_YN=${SCA_YN}
+                                export IAC_SCAN_YN=${IAC_SCAN_YN}
+                                export SBOM_YN=${SBOM_YN}
+
+                                if [ -f "ci/security-scan.sh" ]; then
+                                    chmod +x ci/security-scan.sh
+                                    ./ci/security-scan.sh pre-build
+                                else
+                                    echo "⚠️  ci/security-scan.sh not found. Skipping pre-build security scan."
+                                fi
+                            '''
+                        } catch (err) {
+                            echo "Pre-build security scan failed: ${err}"
+                            echo "⚠️  Pre-build security scan failed but continuing pipeline."
+                        }
+                    }
+                }
+            }
+//             post {
+//                 always {
+//                     archiveArtifacts artifacts: '*.sarif,sbom-*.spdx.json,sbom-*.txt', fingerprint: true, allowEmptyArchive: true
+//                     publishHTML([
+//                         allowMissing: false,
+//                         alwaysLinkToLastBuild: true,
+//                         keepAll: true,
+//                         reportDir: '.',
+//                         reportFiles: '*.html',
+//                         reportName: 'Pre-Build Security Report'
+//                     ])
+//                 }
+//             }
+        }
+
+        stage('Security Gate (Pre-Build)') {
+            when {
+                allOf {
+                    environment name: 'SECURITY_GATE_YN', value: 'false'
+                    anyOf {
+                        environment name: 'SAST_YN', value: 'false'
+                        environment name: 'SCA_YN', value: 'false'
+                        environment name: 'IAC_SCAN_YN', value: 'false'
+                    }
+                }
+            }
+            steps {
+                container('docker') {
+                    sh '''
+                        if [ -f "ci/security-gate.sh" ]; then
+                            echo "🔒 Running Pre-Build Security Gate..."
+                            chmod +x ci/security-gate.sh
+                            echo "🔍 Checking generated SARIF files:"
+                            ls -la *.sarif 2>/dev/null || echo "  No SARIF files found."
+
+                            # Run Security Gate with pre-build SARIF files
+                            ./ci/security-gate.sh \
+                                semgrep.sarif \
+                                semgrep-python.sarif \
+                                semgrep-frontend.sarif \
+                                semgrep-dependencies.sarif \
+                                sca-python.sarif \
+                                sca-node.sarif \
+                                sca-requirements.sarif \
+                                sca-package.sarif \
+                                sca-os.sarif \
+                                checkov-k8s.sarif \
+                                checkov-docker.sarif \
+                                kube-linter.sarif
+                        else
+                            echo "⚠️  ci/security-gate.sh not found. Skipping Pre-Build Security Gate."
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                container('docker') {
+                    script {
+                        try {
+                            // Docker Hub 인증을 통해 rate limit 문제 해결
+                            withDockerRegistry(credentialsId: "${DOCKERHUB_CREDENTIALS_ID}", url: '') {
+                                echo "🚀 Starting frontend build..."
+                                sh '''
+                                    export PATH=$PATH:.:
+                                    echo "🔧 Installing bash..."
+                                    if command -v apk >/dev/null 2>&1; then
+                                        echo "📦 Using Alpine Linux package manager (apk)..."
+                                        apk add --no-cache bash
+                                    elif command -v apt-get >/dev/null 2>&1; then
+                                        echo "📦 Using Debian/Ubuntu package manager (apt-get)..."
+                                        apt-get update && apt-get install -y bash
+                                    elif command -v yum >/dev/null 2>&1; then
+                                        echo "📦 Using CentOS/RHEL package manager (yum)..."
+                                        yum install -y bash
+                                    else
+                                        echo "❌ No supported package manager found"
+                                        exit 1
+                                    fi
+                                    echo "✅ Bash installation completed"
+                                    echo "🔍 Checking ci/k8s.sh file..."
+                                    ls -la ci/k8s.sh || echo "❌ ci/k8s.sh not found"
+                                    if [ -f "ci/k8s.sh" ]; then
+                                        echo "✅ ci/k8s.sh found, setting permissions..."
+                                        chmod +x ci/k8s.sh
+                                        echo "🚀 Executing ci/k8s.sh..."
+                                        export BASE_DOMAIN=${BASE_DOMAIN}
+                                        export APP_NAME=${APP_NAME}
+                                        ./ci/k8s.sh ${BUILD_NUMBER} ${GIT_BRANCH} ${NAMESPACE} build-frontend
+                                    else
+                                        echo "❌ ci/k8s.sh file not found in workspace"
+                                        echo "📁 Current directory contents:"
+                                        ls -la
+                                        echo "📁 ci/ directory contents:"
+                                        ls -la ci/ || echo "ci/ directory not found"
+                                        exit 1
+                                    fi
+                                '''
+                            }
+                        } catch (err) {
+                            echo "Frontend build failed: ${err}"
+                            error("Stopping pipeline due to frontend build failure..")
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build & Push Backend Image') {
+            steps {
+                container('docker') {
+                    script {
+                        try {
+                            withDockerRegistry(credentialsId: "${DOCKERHUB_CREDENTIALS_ID}", url: '') {
+                                def image = "${REGISTRY}/${DOCKER_NAME}:${BUILD_NUMBER}"
+                                sh "cp -Rf Dockerfile.backend Dockerfile"
+                                sh "docker build -t ${image} ."
+
+                                echo "Pushing image: ${image}"
+                                sh "docker push ${image}"
+                            }
+                        } catch (err) {
+                            echo "Docker push failed: ${err}"
+                            error("Stopping pipeline due to push failure.")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                container('kubectl') {
+                    script {
+                        try {
+                            // KUBECONFIG is required for Kubernetes deployment
+                            // Use credential ID directly (not via environment variable to avoid resolution issues)
+                            try {
+                                withCredentials([file(credentialsId: 'kubeconfig-jenkins', variable: 'KUBECONFIG')]) {
+                                    echo "✅ Using KUBECONFIG credential: kubeconfig-jenkins"
+                                    sh '''
+                                        export PATH=$PATH:.:
+                                        echo "🔧 Installing bash..."
+                                        if command -v apk >/dev/null 2>&1; then
+                                            echo "📦 Using Alpine Linux package manager (apk)..."
+                                            apk add --no-cache bash
+                                        elif command -v apt-get >/dev/null 2>&1; then
+                                            echo "📦 Using Debian/Ubuntu package manager (apt-get)..."
+                                            apt-get update && apt-get install -y bash
+                                        elif command -v yum >/dev/null 2>&1; then
+                                            echo "📦 Using CentOS/RHEL package manager (yum)..."
+                                            yum install -y bash
+                                        else
+                                            echo "❌ No supported package manager found"
+                                            exit 1
+                                        fi
+                                        echo "✅ Bash installation completed"
+                                        echo "🔍 Checking ci/k8s.sh file..."
+                                        ls -la ci/k8s.sh || echo "❌ ci/k8s.sh not found"
+                                        if [ -f "ci/k8s.sh" ]; then
+                                            echo "✅ ci/k8s.sh found, setting permissions..."
+                                            chmod +x ci/k8s.sh
+                                            echo "🚀 Starting Kubernetes deployment..."
+                                            echo "  BUILD_NUMBER: ${BUILD_NUMBER}"
+                                            echo "  GIT_BRANCH: ${GIT_BRANCH}"
+                                            echo "  NAMESPACE: ${NAMESPACE}"
+                                            echo "  ARGOCD_ENABLED: ${ARGOCD_ENABLED}"
+                                            echo "  ARGOCD_SERVER: ${ARGOCD_SERVER}"
+                                            echo "  ARGOCD_REPO_URL: ${ARGOCD_REPO_URL}"
+                                            echo "  BASE_DOMAIN: ${BASE_DOMAIN}"
+                                            echo "  APP_NAME: ${APP_NAME}"
+                                            export BASE_DOMAIN=${BASE_DOMAIN}
+                                            export APP_NAME=${APP_NAME}
+                                            export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                                            export SMTP_USERNAME=${SMTP_USERNAME}
+                                            export SMTP_PASSWORD=${SMTP_PASSWORD}
+                                            echo "  POSTGRES_PASSWORD length: ${#POSTGRES_PASSWORD}"
+                                            ./ci/k8s.sh ${BUILD_NUMBER} ${GIT_BRANCH} ${NAMESPACE} deploy
+                                        else
+                                            echo "❌ ci/k8s.sh file not found in workspace"
+                                            echo "📁 Current directory contents:"
+                                            ls -la
+                                            echo "📁 ci/ directory contents:"
+                                            ls -la ci/ || echo "ci/ directory not found"
+                                            exit 1
+                                        fi
+                                    '''
+                                }
+                            } catch (Exception e) {
+                                error("❌ KUBECONFIG credential 'kubeconfig-jenkins' is required but not found in Jenkins. Please configure the credential in Jenkins Credentials Store. Error: ${e.getMessage()}")
+                            }
+                        } catch (err) {
+                            echo "kubectl failed: ${err}"
+                            error("Stopping pipeline due to kubectl failure.")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run Use Case Tests') {
+            when {
+                allOf {
+                    environment name: 'USECASE_YN', value: 'true'
+                    anyOf {
+                        branch 'main'
+                        branch 'qa'
+                        branch 'develop'
+                    }
+                }
+            }
+            steps {
+                container('docker') {
+                    script {
+                        try {
+                            echo "🎯 Starting use case tests..."
+                            sh '''
+                                export PATH=$PATH:.:
+                                echo "🔧 Installing bash..."
+                                if command -v apk >/dev/null 2>&1; then
+                                    echo "📦 Using Alpine Linux package manager (apk)..."
+                                    apk add --no-cache bash
+                                elif command -v apt-get >/dev/null 2>&1; then
+                                    echo "📦 Using Debian/Ubuntu package manager (apt-get)..."
+                                    apt-get update && apt-get install -y bash
+                                elif command -v yum >/dev/null 2>&1; then
+                                    echo "📦 Using CentOS/RHEL package manager (yum)..."
+                                    yum install -y bash
+                                else
+                                    echo "❌ No supported package manager found"
+                                    exit 1
+                                fi
+                                echo "✅ Bash installation completed"
+                                export MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+                                export MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+                                export MINIO_ENDPOINT=${MINIO_ENDPOINT}
+                                export MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+                                export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                                echo "🔍 Checking ci/k8s.sh file..."
+                                ls -la ci/k8s.sh || echo "❌ ci/k8s.sh not found"
+                                if [ -f "ci/k8s.sh" ]; then
+                                    echo "✅ ci/k8s.sh found, setting permissions..."
+                                    chmod +x ci/k8s.sh
+                                    echo "🚀 Starting use case tests..."
+                                    echo "  BUILD_NUMBER: ${BUILD_NUMBER}"
+                                    echo "  GIT_BRANCH: ${GIT_BRANCH}"
+                                    echo "  NAMESPACE: ${NAMESPACE}"
+                                    ./ci/k8s.sh ${BUILD_NUMBER} ${GIT_BRANCH} ${NAMESPACE} usecase-test all
+                                else
+                                    echo "❌ ci/k8s.sh file not found in workspace"
+                                    echo "📁 Current directory contents:"
+                                    ls -la
+                                    echo "📁 ci/ directory contents:"
+                                    ls -la ci/ || echo "ci/ directory not found"
+                                    exit 1
+                                fi
+                            '''
+                        } catch (err) {
+                            echo "Use case tests failed: ${err}"
+                            echo "⚠️  Use case tests failed but continuing pipeline."
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Post-Build Security Scan') {
+            when {
+                anyOf {
+                    environment name: 'CONTAINER_SCAN_YN', value: 'false'
+                    environment name: 'DAST_SCAN_YN', value: 'false'
+                    environment name: 'IMAGE_SIGNING_YN', value: 'false'
+                }
+            }
+            steps {
+                container('docker') {
+                    script {
+                        try {
+                            echo "🔍 Starting post-build security scan (Dynamic Analysis)..."
+                            sh '''
+                                export PATH=$PATH:.:
+                                export MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+                                export MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+                                export MINIO_ENDPOINT=${MINIO_ENDPOINT}
+                                export MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+                                export BUILD_NUMBER=${BUILD_NUMBER}
+                                export SERVICE_URL=${SERVICE_URL}
+                                export REGISTRY=${REGISTRY}
+                                export APP_NAME=${APP_NAME}
+                                export DOCKER_NAME=${DOCKER_NAME}
+                                export FRONT_DOCKER_NAME=${FRONT_DOCKER_NAME}
+                                export CONTAINER_SCAN_YN=${CONTAINER_SCAN_YN}
+                                export DAST_SCAN_YN=${DAST_SCAN_YN}
+                                export IMAGE_SIGNING_YN=${IMAGE_SIGNING_YN}
+                                if [ -f "ci/security-scan.sh" ]; then
+                                    chmod +x ci/security-scan.sh
+                                    ./ci/security-scan.sh post-build
+                                else
+                                    echo "⚠️  ci/security-scan.sh not found. Skipping post-build security scan."
+                                fi
+                            '''
+                        } catch (err) {
+                            echo "Post-build security scan failed: ${err}"
+                            echo "⚠️  Post-build security scan failed but continuing pipeline."
+                        }
+                    }
+                }
+            }
+//             post {
+//                 always {
+//                     archiveArtifacts artifacts: '*.sarif,security-scan-summary.txt,zap-baseline-report.html,nikto.json,sbom-*.spdx.json,sbom-*.txt,cosign.pub', fingerprint: true, allowEmptyArchive: true
+//                     publishHTML([
+//                         allowMissing: false,
+//                         alwaysLinkToLastBuild: true,
+//                         keepAll: true,
+//                         reportDir: '.',
+//                         reportFiles: '*.html',
+//                         reportName: 'Post-Build Security Report'
+//                     ])
+//                 }
+//             }
+        }
+
+//         stage('Security Gate (Post-Deploy)') {
+//             when {
+//                 allOf {
+//                     environment name: 'SECURITY_GATE_YN', value: 'false'
+//                     anyOf {
+//                         environment name: 'CONTAINER_SCAN_YN', value: 'false'
+//                         environment name: 'DAST_SCAN_YN', value: 'false'
+//                     }
+//                 }
+//             }
+//             steps {
+//                 container('docker') {
+//                     sh '''
+//                         echo "🔒 Running Post-Deploy Security Gate..."
+//                         chmod +x ci/security-gate.sh
+//                         echo "🔍 Checking generated SARIF files:"
+//                         ls -la *.sarif 2>/dev/null || echo "  No SARIF files found."
+//
+//                         # Run Security Gate with post-build SARIF files
+//                         ./ci/security-gate.sh \
+//                             image-backend.sarif \
+//                             image-frontend.sarif \
+//                             image-config.sarif \
+//                             zap-baseline.sarif \
+//                             nikto.sarif
+//                     '''
+//                 }
+//             }
+//         }
+    }
+
+    post {
+        always {
+            // Archive security scan results only if they exist
+            script {
+                def sarifFiles = sh(script: "find . -name '*.sarif' -type f", returnStdout: true).trim()
+                def sbomFiles = sh(script: "find . -name 'sbom-*' -type f", returnStdout: true).trim()
+                def signingFiles = sh(script: "find . -name 'cosign.pub' -type f", returnStdout: true).trim()
+
+                if (sarifFiles || sbomFiles || signingFiles) {
+                    archiveArtifacts artifacts: '*.sarif,sbom-*.spdx.json,sbom-*.txt,cosign.pub', fingerprint: true, allowEmptyArchive: true
+                } else {
+                    echo "No security scan files found to archive"
+                }
+            }
+
+            // 이전 프로젝트와 동일한 방식: always 블록에서 script 밖에서 emailext 호출
+            script {
+                // 커밋한 사람의 이메일 주소 가져오기
+                def commitAuthorEmail = ''
+                try {
+                    // Pull Request인 경우
+                    if (env.CHANGE_AUTHOR_EMAIL) {
+                        commitAuthorEmail = env.CHANGE_AUTHOR_EMAIL
+                        echo "📧 Pull Request 작성자 이메일: ${commitAuthorEmail}"
+                    } else {
+                        // 일반 커밋인 경우
+                        // git log로 실제 커밋의 author email 가져오기 (Jenkins 환경 변수는 신뢰하지 않음)
+                        // fortinet.com 이메일은 필터링하여 기본 이메일 사용
+                        def defaultEmail = env.DEFAULT_COMMIT_EMAIL ?: 'doohee323@gmail.com'
+
+                        container('docker') {
+                            def gitEmail = sh(
+                                script: 'git log -1 --pretty=format:%ae',
+                                returnStdout: true
+                            ).trim()
+                            echo "📧 Git log에서 가져온 이메일: ${gitEmail}"
+
+                            // fortinet.com 이메일은 제외하고 기본 이메일 사용
+                            if (gitEmail && gitEmail.contains('@') && !gitEmail.contains('fortinet.com')) {
+                                commitAuthorEmail = gitEmail
+                            } else {
+                                commitAuthorEmail = defaultEmail
+                                echo "📧 fortinet.com 이메일 필터링, 기본 이메일 사용: ${commitAuthorEmail}"
+                            }
+                        }
+                    }
+
+                    // 이메일 주소가 유효한 경우에만 전송
+                    if (commitAuthorEmail && commitAuthorEmail.contains('@')) {
+                        def buildUrl = env.BUILD_URL ?: 'N/A'
+                        def jobName = env.JOB_NAME ?: 'tz-todo-demo Build'
+                        def buildNumber = env.BUILD_NUMBER ?: 'N/A'
+                        def branchName = env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'N/A'
+                        def buildResult = currentBuild.currentResult ?: 'UNKNOWN'
+
+                        // 이메일 제목과 본문 설정
+                        def emailSubject = buildResult == 'SUCCESS' ?
+                            "✅ [tz-todo-demo] 빌드 성공 - ${jobName} #${buildNumber}" :
+                            "❌ [tz-todo-demo] 빌드 실패 - ${jobName} #${buildNumber}"
+
+                        def emailBody = buildResult == 'SUCCESS' ? """
+                            <h2>빌드가 성공적으로 완료되었습니다</h2>
+                            <p><strong>프로젝트:</strong> ${jobName}</p>
+                            <p><strong>빌드 번호:</strong> #${buildNumber}</p>
+                            <p><strong>브랜치:</strong> ${branchName}</p>
+                            <p><strong>빌드 URL:</strong> <a href="${buildUrl}">${buildUrl}</a></p>
+                            <p><strong>커밋:</strong> ${env.GIT_COMMIT ?: 'N/A'}</p>
+                            <hr>
+                            <p>※ Full build log is attached.</p>
+                            <p>이 이메일은 자동으로 생성되었습니다.</p>
+                        """ : """
+                            <h2>빌드가 실패했습니다</h2>
+                            <p><strong>프로젝트:</strong> ${jobName}</p>
+                            <p><strong>빌드 번호:</strong> #${buildNumber}</p>
+                            <p><strong>브랜치:</strong> ${branchName}</p>
+                            <p><strong>빌드 URL:</strong> <a href="${buildUrl}">${buildUrl}</a></p>
+                            <p><strong>커밋:</strong> ${env.GIT_COMMIT ?: 'N/A'}</p>
+                            <hr>
+                            <p>※ Full build log is attached. 로그를 확인하여 문제를 해결해주세요.</p>
+                            <p>이 이메일은 자동으로 생성되었습니다.</p>
+                        """
+
+                        // 환경 변수에 저장 (script 블록 밖에서 사용하기 위해)
+                        env.COMMIT_AUTHOR_EMAIL = commitAuthorEmail
+                        env.EMAIL_SUBJECT = emailSubject
+                        env.EMAIL_BODY = emailBody
+                        env.SEND_EMAIL = 'true'
+                    } else {
+                        env.SEND_EMAIL = 'false'
+                    }
+                } catch (Exception e) {
+                    echo "⚠️ 이메일 주소 가져오기 실패: ${e.getMessage()}"
+                    env.SEND_EMAIL = 'false'
+                }
+            }
+
+            // script 블록 밖에서 emailext 호출 (이전 프로젝트와 동일한 방식)
+            // attachLog: true가 작동하려면 script 블록 밖에서 호출해야 함
+            script {
+                if (env.SEND_EMAIL == 'true' && env.COMMIT_AUTHOR_EMAIL && env.COMMIT_AUTHOR_EMAIL.contains('@')) {
+                    // FROM_EMAIL이 설정되어 있으면 사용, 없으면 NAVER SMTP 인증 계정과 일치하는 주소 사용
+                    // NAVER SMTP는 발신자 주소가 인증된 사용자와 일치해야 함
+                    def fromEmail = env.FROM_EMAIL ?: 'doohee323@naver.com'
+
+                    try {
+                        // 문자열 보간 경고를 피하기 위해 변수로 분리
+                        def emailSubject = env.EMAIL_SUBJECT
+                        def emailBody = env.EMAIL_BODY
+                        def emailTo = env.COMMIT_AUTHOR_EMAIL
+
+                        emailext(
+                            subject: emailSubject,
+                            body: emailBody,
+                            to: emailTo,
+                            from: fromEmail,
+                            mimeType: 'text/html',
+                            attachLog: true,
+                            compressLog: true,
+                            replyTo: fromEmail
+                        )
+                        def resultIcon = currentBuild.currentResult == 'SUCCESS' ? '✅' : '❌'
+                        echo "${resultIcon} 이메일 전송 완료: ${emailTo} (from: ${fromEmail})"
+                    } catch (Exception e) {
+                        echo "⚠️ 이메일 전송 실패: ${e.getMessage()}"
+                        echo "📧 이메일 주소: ${env.COMMIT_AUTHOR_EMAIL}"
+                        echo "📧 발신자: ${fromEmail}"
+                        // 이메일 전송 실패해도 빌드는 계속 진행
+                    }
+                }
+            }
+        }
+        success {
+            echo "✅ Pipeline completed successfully"
+        }
+        failure {
+            echo "❌ Pipeline failed"
+        }
+    }
+}
+

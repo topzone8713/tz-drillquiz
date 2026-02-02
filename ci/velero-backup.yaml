@@ -1,0 +1,52 @@
+# Velero 백업 설정
+# PostgreSQL 데이터베이스와 PV를 포함한 devops 네임스페이스 백업
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: devops-postgres-backup
+  namespace: velero
+  labels:
+    app: postgres
+    component: database
+    environment: devops
+spec:
+  # 백업할 네임스페이스
+  includedNamespaces:
+  - devops
+  
+  # 백업할 리소스 타입
+  includedResources:
+  - pods
+  - persistentvolumes
+  - persistentvolumeclaims
+  - statefulsets
+  - secrets
+  - configmaps
+  - services
+  
+  # 클러스터 스코프 리소스 포함
+  includeClusterResources: auto
+  
+  # 볼륨 백업 설정 (PV 데이터 포함)
+  defaultVolumesToFsBackup: true
+  snapshotVolumes: true
+  
+  # 백업 스토리지 위치
+  storageLocation: default
+  
+  # 백업 유지 기간 (30일)
+  ttl: 720h0m0s
+  
+  # 타임아웃 설정
+  csiSnapshotTimeout: 10m0s
+  itemOperationTimeout: 4h0m0s
+  
+  # 메타데이터
+  metadata:
+    labels:
+      backup-type: postgres
+      environment: devops
+      created-by: velero-backup-script
+    annotations:
+      description: "PostgreSQL database backup with PV for devops namespace"
+      backup-time: "{{ now | date('2006-01-02 15:04:05') }}"

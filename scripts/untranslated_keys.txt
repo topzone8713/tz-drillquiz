@@ -1,0 +1,600 @@
+categoryManager.colorCode|Color Code (Optional)
+categoryManager.colorPlaceholder|e.g., 🟩, 🟦, 🟨
+categoryManager.level|Level
+categoryManager.nameEn|English Name
+categoryManager.nameKo|Korean Name
+categoryManager.noParent|None (Top Level)
+categoryManager.order|Order
+common.alerts.operationSuccess|Operation completed successfully.
+common.languageSwitch|Language Switch
+common.loadingTranslations|Loading translations...
+common.time.hour|hr
+common.time.hours|hr
+common.time.minute|min
+common.time.minutes|min
+common.translation.loading|Loading translations...
+confirm.deleteAllExamResults|Are you sure you want to delete all quiz results for this exam?
+
+This action cannot be undone.
+confirm.deleteAllSelectedQuestionResults|Are you sure you want to delete all results of {count} selected quizzes?
+
+This will delete all records of these quizzes regardless of which exam they were taken in.
+
+This action cannot be undone.
+confirm.deleteQuestion|"{questionTitle}" {deleteQuestionText}
+createExam.adminOnly|Admin access only.
+createExam.allDifficulties|All Difficulties
+devopsInterview.content.learningResources.features|Key Features
+devopsInterview.content.learningResources.progress|Progress Sharing and Feedback
+devopsInterview.content.learningResources.qna|Expected Q&A Guides
+devopsInterview.content.learningResources.title|Learning Resources
+devopsInterview.content.questionBank.cicd|CI/CD
+devopsInterview.content.questionBank.cloud|Cloud
+devopsInterview.content.questionBank.difficulty|Difficulty Level Tagging
+devopsInterview.content.questionBank.kubernetes|Kubernetes
+devopsInterview.content.questionBank.linux|Linux
+devopsInterview.content.questionBank.sre|SRE
+devopsInterview.content.questionBank.systemDesign|System Design
+devopsInterview.content.title|Content Introduction
+devopsInterview.cta.description|Prepare for DevOps interviews systematically with DrillQuiz
+devopsInterview.cta.title|Get Started Now
+devopsInterview.hero.description|Prepare with real-world problems frequently asked at FAANG and Silicon Valley big tech companies
+devopsInterview.hero.solveProblems|Solve Problems
+devopsInterview.hero.startStudy|Start Studying
+devopsInterview.hero.subtitle|Systematic DevOps Interview Preparation for Senior Engineers
+devopsInterview.hero.title|DevOps Interview Preparation, Like Real Interviews
+devopsInterview.roadmap.stage1.git|Git version control and collaboration workflow
+devopsInterview.roadmap.stage1.linux|Linux basic commands and system administration
+devopsInterview.roadmap.stage1.shell|Shell scripting and automation
+devopsInterview.roadmap.stage1.subtitle|Linux + Shell + Git Basics
+devopsInterview.roadmap.stage1.title|Stage 1
+devopsInterview.roadmap.stage2.cicd|CI/CD pipeline construction and optimization
+devopsInterview.roadmap.stage2.docker|Containerization and Docker optimization
+devopsInterview.roadmap.stage2.kubernetes|Kubernetes cluster management and operations
+devopsInterview.roadmap.stage2.subtitle|CI/CD + Docker + Kubernetes
+devopsInterview.roadmap.stage2.title|Stage 2
+devopsInterview.roadmap.stage3.cloud|Cloud infrastructure design and management
+devopsInterview.roadmap.stage3.subtitle|Cloud Infra + Terraform + System Design
+devopsInterview.roadmap.stage3.systemDesign|System architecture design
+devopsInterview.roadmap.stage3.terraform|Infrastructure as Code
+devopsInterview.roadmap.stage3.title|Stage 3
+devopsInterview.roadmap.stage4.advanced|Advanced system optimization
+devopsInterview.roadmap.stage4.distributed|Large-scale distributed system design
+devopsInterview.roadmap.stage4.sre|SRE operations and monitoring
+devopsInterview.roadmap.stage4.subtitle|Large-Scale Distributed System Design & SRE Practices
+devopsInterview.roadmap.stage4.title|Stage 4
+devopsInterview.roadmap.subtitle|Step-by-step learning from Junior → Mid-Level → Senior → Staff/Principal
+devopsInterview.roadmap.title|Recommended Learning Path
+devopsInterview.sample.question1.category|Easy Linux
+devopsInterview.sample.question1.time|Expected time: 10-15 minutes
+devopsInterview.sample.question1.title|Linux Process Management
+devopsInterview.sample.question2.category|Medium Kubernetes
+devopsInterview.sample.question2.time|Expected time: 20-25 minutes
+devopsInterview.sample.question2.title|Kubernetes Deployment Strategies
+devopsInterview.sample.question3.category|Hard System Design
+devopsInterview.sample.question3.time|Expected time: 45-60 minutes
+devopsInterview.sample.question3.title|Large-Scale Distributed System Design
+devopsInterview.why.autoReview.description|Automatically re-presents frequently missed problems
+devopsInterview.why.mockInterview.description|Provides real-time GPT interview script functionality
+devopsInterview.why.mockInterview.title|Real Mock Interviews
+devopsInterview.why.realWorld.description|Reflects DevOps/System Design problems frequently asked at FAANG and Silicon Valley big tech companies
+devopsInterview.why.realWorld.title|Real-World Focused
+devopsInterview.why.title|Why This Site?
+emailVerification.error.tokenMissing|Verification token is missing.
+emailVerification.loading.title|Processing Email Verification...
+emailVerification.success.description|Email verification has been completed successfully.
+emailVerification.success.title|Email Verification Complete!
+examDetail.accuracyAdjustment|Accuracy Adjustment
+examDetail.accuracyAdjustment.decrease|decrease
+examDetail.accuracyAdjustment.increase|increase
+examDetail.actions|Actions
+examDetail.adjustAccuracy|Adjust Accuracy
+examDetail.adjustmentHistory|Adjustment history is accumulated and managed.
+examDetail.adjustmentInfo|Adjustment Information
+examDetail.adjustmentPercentage|Adjustment Percentage
+examDetail.adjustmentType|Adjustment Type
+examDetail.aiMockInterview|AI Mock Interview
+examDetail.aiMockInterviewSupport|AI Mock Interview Support
+examDetail.alerts.questionCopyComplete|Quiz copy completed.
+examDetail.alerts.questionDeleteComplete|Quiz deletion completed.
+examDetail.alerts.questionMoveComplete|Quiz move completed.
+examDetail.alerts.questionsDeleted|{count} quizzes have been deleted. The list will be refreshed.
+examDetail.alerts.titleUpdated|Title has been updated.
+examDetail.allDifficulties|All Difficulties
+examDetail.allGroups|All Groups
+examDetail.andMore|... and {count} more
+examDetail.attemptCount|Attempt
+examDetail.connectedProjects|Projects
+examDetail.connectedProjects.label|Projects:
+examDetail.correctQuestions|Correct Count
+examDetail.count|{count}
+examDetail.createdAt|Created At
+examDetail.createdAtLabel|Created At
+examDetail.decrease|Decrease
+examDetail.detail|Detail
+examDetail.errors|Errors: {count}
+examDetail.explanation|Explanation
+examDetail.features|Features
+examDetail.forceAnswer|Force Answer
+examDetail.group|Group
+examDetail.groupId|Group ID
+examDetail.highAccuracy|High Accuracy
+examDetail.id|ID
+examDetail.ignore|Ignore
+examDetail.ignoreAll|Ignore
+examDetail.ignored|Ignored
+examDetail.importing|Importing...
+examDetail.increase|Increase
+examDetail.justRandom|Just Random
+examDetail.latestScore|Pass Rate
+examDetail.link|Link
+examDetail.lowAccuracy|Low Accuracy
+examDetail.manualSelection|Manual Selection
+examDetail.maxCount|Max {count}
+examDetail.notIgnored|Not Ignored
+examDetail.number|Number
+examDetail.optionalColumns|Optional Columns
+examDetail.original|Original
+examDetail.originalExam|Original
+examDetail.person|{count} people
+examDetail.publicStatus|Public Status
+examDetail.randomOption|Random Option
+examDetail.randomSelection|Random Selection
+examDetail.requiredColumns|Required Columns
+examDetail.retake|Retake
+examDetail.seenQuestions|Seen
+examDetail.selectedQuestions|Selected
+examDetail.selectionMode|Selection Mode
+examDetail.share|Share
+examDetail.skipped|Skipped: {count}
+examDetail.startVoiceInterview|Start Voice Interview
+examDetail.status|Status
+examDetail.supportedFormats|Supported Formats
+examDetail.targetUser|Target User
+examDetail.totalRowsProcessed|Total {count} rows processed
+examDetail.unignore|Unignore
+examDetail.updated|Updated: {count}
+examDetail.url|URL
+examDetail.version|Version
+examDetail.versionLabel|Version
+examDetail.viewMappings|View Mappings
+examDetail.voiceMode|Voice Mode Support
+examDetail.warnings|Warnings
+examDetail.warningsDescription|If Group ID column exists, it will overwrite existing Group IDs
+examManagement.createForm.aiGenerateQuestions|Paste Problem List
+examManagement.createForm.aiMockInterview|AI Mock Interview
+examManagement.createForm.forceAnswer|Force Answer
+examManagement.createForm.generating|Generating...
+examManagement.createForm.leetcodeProblemsHelp|Paste a list including problem number, title, and difficulty.
+examManagement.createForm.leetcodeProblemsLabel|LeetCode Problems List
+examManagement.createForm.leetcodeProblemsPlaceholder|Paste problems list here...
+examManagement.createForm.max|Max
+examManagement.createForm.parsedProblems|Parsed Problems
+examManagement.createForm.problemsReady|{count} problems are ready.
+examManagement.createForm.publicStatus|Public Status
+examManagement.createForm.questionCount|Quiz Count
+examManagement.createForm.voiceMode|Voice Mode Support
+examManagement.creating|Creating...
+examManagement.filter.copyOnly|Copy Only
+examManagement.filter.original|Original
+examManagement.filter.originalOnly|Original Only
+examManagement.filter.unsubscribe|Unsubscribe
+examManagement.messages.autoSwitchToPublic|
+examManagement.modal.questionCount|Quiz Count
+examManagement.subscribe|Subscribe
+examManagement.table.actions|Actions
+examManagement.table.copy|Copy
+examManagement.table.copyExam|Copied
+examManagement.table.correctQuestions|Pass Rate: {correct} / {total}
+examManagement.table.createdDate|Created Date
+examManagement.table.details|Details
+examManagement.table.latestScore|Pass Rate: {score}%
+examManagement.table.original|Original
+examManagement.table.originalExam|Original
+examManagement.table.passRate|Pass Rate
+examManagement.table.subscribe|Subscribe
+examManagement.table.unsubscribe|Unsubscribe
+examManagement.table.wrongQuestions|Wrong Quizzes
+examManagement.toggle|Toggle
+examManagement.unsubscribe|Unsubscribe
+examManagement.upload.column|Column
+examManagement.upload.formatExample|Format Example
+examManagement.upload.questionColumns|Quiz Columns
+examManagement.upload.questionDetails|Quiz details (title, content, answer, etc.)
+examManagement.upload.sheetName|Sheet Name
+favorites.actions|Actions
+favorites.allCorrects|All Corrects
+favorites.allDifficulties|All Difficulties
+favorites.allIgnores|All Ignores
+favorites.attemptCount|Attempt
+favorites.both|Both
+favorites.condition|Condition
+favorites.createdAt|Created At:
+favorites.high|High (80%+)
+favorites.ignored|Ignored
+favorites.low|Low (<40%)
+favorites.mediumRate|Medium (40-79%)
+favorites.notIgnored|Not Ignored
+favorites.number|Number
+favorites.seenQuestions|Seen:
+favorites.selectedQuestions|Selected:
+favorites.status|Status
+favorites.totalQuestions|Total:
+favorites.unignore|Unignore
+favorites.version|Version:
+gettingStarted.step1.adminOnly|(Admin only)
+gettingStarted.step2.adminOnly|(Admin only)
+gettingStarted.step5.button|Email Settings
+gettingStarted.title|Getting Started
+google_login_button|Sign in with Google
+home.alerts.retakeCreated|Retake version has been created.
+home.card.dailyExam.description|Get today's quizzes
+home.card.gettingStarted.title|Getting Started
+home.card.randomPractice.button|Start Practice
+home.card.randomPractice.description|Practice with random quizzes
+home.card.randomPractice.title|Random Practice
+home.card.userManagement.button|Manage Users
+home.card.userManagement.description|Manage users and permissions
+home.card.userManagement.title|User Management
+home.features.subtitle|Discover the core features of DrillQuiz
+home.features.title|Key Features
+home.recentResults.table.elapsedTime|Elapsed
+home.recentResults.table.retake|Retake
+home.recentResults.title|Recent Quizzes
+home.studyProgress.table.period|Period
+home.subtitle|Master the quizzes you often get wrong with DrillQuiz!
+home.title|Drill, Quiz, Drill
+login.appleLogin|Sign in with Apple
+login.messages.userInfoSaved|User information saved
+login.noAccount|Don't have an account?
+memberManagement.actions|Actions
+memberManagement.affiliation|Affiliation
+memberManagement.alerts.emailAlreadyExists|Email already exists.
+memberManagement.connectUser|Connect User
+memberManagement.location|Location
+memberManagement.management|Management
+memberManagement.role|Role
+memberManagement.status|Status
+memberManagement.userMapping|User Mapping
+memberManagement.userMappingTarget|User Mapping Target
+menu.serviceIntro|Overview
+modal.ok|OK
+models.retake|Retake
+profile.accountSecurity.title|Account & Security
+profile.cache.cleared|All cache has been cleared.
+profile.cache.description|Improve performance with caching
+profile.cache.disabled|Cache has been disabled.
+profile.cache.title|Cache Settings
+profile.emailVerification.alreadyVerified|Email is already verified.
+profile.emailVerification.completedDescription|Email verification completed. You can use all features.
+profile.emailVerification.noEmail|Email address is not set.
+profile.emailVerification.sendButton|Send Verification Email
+profile.emailVerification.sending|Sending...
+profile.emailVerification.title|Email Verification
+profile.emailVerification.tokenExpired|Verification link has expired. Please request again.
+profile.emailVerification.verificationComplete|Email verification completed.
+profile.exporting|Exporting...
+profile.firstName|First Name
+profile.language.english|English
+profile.language.korean|Korean
+profile.language.title|Language Settings
+profile.language.update.success|Language settings have been changed.
+profile.languageChanged|Language setting has been changed.
+profile.lastName|Last Name
+profile.messages.cacheCleared|All cache has been cleared.
+profile.messages.cacheDisabled|Cache disabled successfully
+profile.messages.cacheEnabled|Cache enabled successfully
+profile.messages.currentPasswordIncorrect|Current password is incorrect
+profile.messages.loading|Loading profile information...
+profile.messages.passwordChangeSuccess|Password changed successfully
+profile.messages.passwordChanged|Password changed successfully
+profile.messages.passwordMismatch|Passwords do not match
+profile.messages.saveSuccess|Settings saved successfully
+profile.messages.userInfoUpdated|User information updated successfully
+profile.password.change.success|Password has been changed successfully.
+profile.password.currentPassword|Current Password
+profile.password.mismatch|Passwords do not match.
+profile.password.newPassword|New Password
+profile.randomExam.emailEnabled|Email Notifications
+profile.randomExam.questionCount|Quiz Count
+profile.refresh.success|Profile information has been refreshed.
+profile.retention.cleaning|Cleaning...
+profile.retention.cleanupNow|Clean up now
+profile.retention.cleanupSuccess|Manual cleanup completed. {count} successful records have been deleted.
+profile.retention.enabled|Auto cleanup enabled
+profile.retention.updateSuccess|Retention Cleanup settings have been updated.
+profile.statistics.backup.downloadSuccess|Statistics backup has been successfully downloaded.
+profile.statistics.exportingBackup|Exporting...
+profile.statistics.resetConfirm.impact4|Accuracy adjustment records
+profile.statistics.resetting|Resetting...
+profile.translation.title|Automatic Translation
+profile.translation.update.success|Automatic translation setting has been updated.
+profile.userInfo.update.success|User information has been updated.
+profile.withdrawal.button|Withdraw Account
+profile.withdrawal.confirm.impact5|User profile and personal settings
+profile.withdrawal.confirm.placeholder|WITHDRAW
+profile.withdrawal.impact5|User profile and personal settings
+profile.withdrawal.success|Your account has been successfully withdrawn.
+profile.withdrawal.title|Account Withdrawal
+questionFiles.filter.dateRange|Date Range
+questionFiles.filter.othersFiles|Other Users
+questionFiles.filter.uploader|Uploader
+questionFiles.supportedFormats|Supported formats: XLSX, CSV
+questionFiles.table.count|
+questionFiles.table.filename|Filename
+questionFiles.table.maxQuestions|Max
+questionFiles.table.modified|Modified
+questionFiles.table.publicStatus|Status
+questionFiles.table.size|Size
+questionFiles.upload.autoCorrect|Auto Correct
+questionFiles.upload.autoCorrectDescription|Automatically correct common formatting issues
+questionFiles.upload.example1.title|Kubernetes Pod Creation
+questionFiles.upload.example2.title|Deployment Deployment
+questionFiles.upload.example3.title|Service Connection
+questionFiles.upload.optionalColumns|Optional Columns: Difficulty, URL, Group ID, Explanation
+questionFiles.upload.sampleCsv|Sample CSV
+questionFiles.upload.supportedFormats|Supported Formats: CSV, XLSX
+randomPractice.practiceSettings.goal|Goal
+randomPractice.practiceSettings.overallProgress|Overall Progress
+randomPractice.practiceSettings.period|Period
+randomPractice.practiceSettings.practiceSettings|Practice Settings
+randomPractice.practiceSettings.questionCount|Quiz Count
+randomPractice.practiceSettings.startPractice|Start Practice
+randomPractice.practiceSettings.title|Practice Settings
+randomPractice.question.answerPlaceholder|Type your answer here...
+randomPractice.question.content|Quiz Content
+randomPractice.question.elapsedTime|Elapsed Time: {time}
+randomPractice.question.end|End Practice
+randomPractice.question.hideAnswer|Hide Answer
+randomPractice.question.questionId|Quiz ID
+randomPractice.question.showAnswer|Show Answer
+randomPractice.question.skipQuestion|Skip Quiz
+randomPractice.question.submitAnswer|Submit Answer
+randomPractice.question.title|Quiz {current} of {total}
+randomPractice.result.accuracy|Accuracy: {accuracy}%
+randomPractice.result.correct|Correct: {correct} / {total}
+randomPractice.result.elapsedTime|Elapsed Time: {time}
+randomPractice.result.restart|Restart
+randomPractice.studySelection.progress|Progress: {progress}%
+randomPractice.title|Random Practice
+realtime.sessionDeleted|Session has been successfully deleted.
+register.affiliation|Affiliation
+register.affiliationPlaceholder|Affiliation (optional)
+register.alerts.registrationComplete|Registration completed. Please log in!
+register.appleCancelled|Apple signup was cancelled.
+register.appleSignup|Sign up with Apple
+register.errors.passwordMismatch|Passwords do not match.
+register.googleCancelled|Google signup was cancelled.
+register.googleSignup|Sign up with Google
+register.haveAccount|Already have an account?
+register.location|Location
+register.locationPlaceholder|Location (optional)
+results.errors.accessDenied|Access denied.
+results.table.elapsedTime|Elapsed Time
+results.table.management|Management
+serviceIntro.cta.description|Experience more effective learning with DrillQuiz
+serviceIntro.cta.title|Get Started Now
+serviceIntro.feature1.drain.description|Even previously solved problems are automatically reintroduced over time, filling gaps in memory.
+serviceIntro.feature1.drain.title|Forgetting Curve Feature
+serviceIntro.feature1.memory.description|Reflecting the fact that "even known problems can be answered incorrectly over time," it supports long-term memory formation.
+serviceIntro.feature1.memory.title|Long-term Memory Formation
+serviceIntro.feature1.title|1. A New Way of Repetitive Learning
+serviceIntro.feature2.description|DrillQuiz enhances the problem-solving experience through interview-style learning with ChatGPT.
+serviceIntro.feature2.interview.title|Conversation-based Learning
+serviceIntro.feature2.title|2. Interview-style Learning Support
+serviceIntro.feature3.email.description|Receive daily morning emails with only frequently missed problems for efficient repetitive learning
+serviceIntro.feature3.email.title|Customized Email Quizzes
+serviceIntro.feature3.habit.title|Habit Formation
+serviceIntro.feature4.description|Beyond simple problem solving, it provides opportunities for long-term and systematic growth through a structured learning system.
+serviceIntro.feature4.drain.description|Memory Enhancement
+serviceIntro.feature4.drain.title|Forgetting Curve Feature
+serviceIntro.feature4.email.description|Consistent Repetitive Learning Habits
+serviceIntro.feature4.email.title|Email Subscription
+serviceIntro.feature4.interview.description|Practical Response Improvement
+serviceIntro.feature4.interview.title|Interview Mode
+serviceIntro.feature4.title|4. Maximize Learning Effectiveness
+serviceIntro.subtitle|Discover innovative features for efficient learning
+serviceIntro.title|DrillQuiz Service Introduction
+shortUrl.expired|URL has expired.
+shortUrl.loading|Redirecting...
+shortUrl.redirecting|Redirecting...
+study.joinRequestDeleted|Join request has been deleted.
+studyDetail.actions|Actions
+studyDetail.affiliation|Affiliation
+studyDetail.approveJoinRequestSuccess|Join request approved successfully.
+studyDetail.approved|Approved
+studyDetail.column|Column
+studyDetail.details|Details
+studyDetail.goalLabel|Goal:
+studyDetail.joinRequest|Join Request
+studyDetail.joinRequestCancelled|Join request cancelled successfully.
+studyDetail.joinRequestList|Join Requests
+studyDetail.joinRequestSent|Join request sent successfully.
+studyDetail.leaveStudy|Leave
+studyDetail.location|Location
+studyDetail.managementHeader|Actions
+studyDetail.manualProgress|Manual: {progress}%
+studyDetail.memberCount|
+studyDetail.periodLabel|Period:
+studyDetail.progressLabel|Progress:
+studyDetail.progressRate|Progress Rate (%)
+studyDetail.progressRateLabel|Progress Rate (%)
+studyDetail.progressRateOptional|Progress rate (0-100, optional)
+studyDetail.publicStatusLabel|Status:
+studyDetail.publicStatusLabel2|Status:
+studyDetail.rejectJoinRequestSuccess|Join request rejected successfully.
+studyDetail.rejected|Rejected
+studyDetail.requestDate|Request Date
+studyDetail.requester|Requester
+studyDetail.respondedBy|by
+studyDetail.role|Role
+studyDetail.sheetName|Sheet Name
+studyDetail.status|Status
+studyDetail.title|
+studyDetail.viewDetails|Details
+studyManagement.calendar.month|Month
+studyManagement.calendar.nextMonth|Next Month
+studyManagement.calendar.nextYear|Next Year
+studyManagement.calendar.prevMonth|Previous Month
+studyManagement.calendar.prevYear|Previous Year
+studyManagement.calendar.weekDays|Sun,Mon,Tue,Wed,Thu,Fri,Sat
+studyManagement.calendar.year|Year
+studyManagement.calendar.yearMonth|{month} {year}
+studyManagement.createForm.endDateLabel|End Date
+studyManagement.createForm.goalLabel|Goal
+studyManagement.createForm.startDateLabel|Start Date
+studyManagement.messages.autoSwitchToPublic|
+studyManagement.messages.back|Back
+studyManagement.messages.joinRequestCancelled|Join request cancelled successfully.
+studyManagement.messages.joinRequestSent|Join request sent successfully.
+studyManagement.messages.send|Send
+studyManagement.table.actions|Actions
+studyManagement.table.goal|Goal
+studyManagement.table.joinRequest|Join Request
+studyManagement.table.period|Period
+studyManagement.table.publicStatus|Status
+studyProgressDashboard.backButton|Back
+studyProgressDashboard.chart.attemptedProgress|Attempted
+studyProgressDashboard.chart.overallProgress|Overall Progress
+studyProgressDashboard.overallProgressSubtitle|Attempted Progress (시도한 문제) & Correct Progress (맞춘 문제)
+studyProgressDashboard.overallProgressTitle|Overall Progress
+studyProgressDashboard.periodSelector|Period
+studyProgressDashboard.periods.1day|1 Day
+studyProgressDashboard.periods.1month|1 Month
+studyProgressDashboard.periods.1year|1 Year
+studyProgressDashboard.periods.7days|7 Days
+studyProgressDashboard.progressRecordsTitle|7-Day Progress Record Summary
+studyProgressDashboard.refreshing|Refreshing...
+studyProgressDashboard.table.accessCount|Access Count
+studyProgressDashboard.table.date|Date
+studyProgressDashboard.table.maxProgress|Max Progress
+studyProgressDashboard.taskProgress.overallAccuracy|Overall Accuracy
+studyProgressDashboard.taskProgress.totalCorrectAttempts|Total Correct Attempts
+studyProgressDashboard.taskProgressSubtitle|Attempted Progress (시도한 문제) & Correct Progress (맞춘 문제)
+studyProgressDashboard.title|Progress Dashboard
+tagFilterModal.deleteTagConfirm|Are you sure you want to delete the tag "{tagName}" from the database?
+
+This action cannot be undone.
+takeExam.addNewQuestion|Add New Quiz
+takeExam.adjustAccuracy|Adjust
+takeExam.ambiguous|Ambiguous
+takeExam.attempts|Attempts
+takeExam.correctAnswer|Correct!
+takeExam.correctAnswers|Correct answers: {correct} / {total}
+takeExam.deleteConfirm.message|Quiz will be deleted. Are you sure?
+takeExam.deleteQuestion|quiz will be deleted. Are you sure?
+takeExam.details|Details
+takeExam.enableVoice|Voice Mode
+takeExam.explanation|Explanation
+takeExam.fullscreen|Fullscreen
+takeExam.getHint|Get a hint
+takeExam.groupId|Group ID
+takeExam.ignore|Ignore
+takeExam.ignoreQuestion|Ignore Quiz
+takeExam.incorrectAnswer|Incorrect.
+takeExam.list|List
+takeExam.moreOptions|More Options
+takeExam.newQuestionAddedSuccessfully|New quiz added successfully
+takeExam.playAudio|Play Audio
+takeExam.playPause|Play/Pause
+takeExam.questionDeletedSuccessfully|Quiz deleted successfully
+takeExam.questionEditedSuccessfully|Quiz edited successfully
+takeExam.questionId|Quiz ID
+takeExam.questionIdMismatch|Quiz ID Mismatch
+takeExam.questionIgnored|Quiz ignored
+takeExam.questionNumber|Quiz {current} of {total}
+takeExam.questionUnignored|Quiz unignored
+takeExam.realtimeVoiceRecognition|Real-time Voice Recognition
+takeExam.share|Share
+takeExam.shuffle|Shuffle
+takeExam.shuffleByAccuracy|Shuffle by Priority Groups
+takeExam.solved|Pass
+takeExam.statistics|Statistics
+takeExam.testMode|Test
+takeExam.trackProgress|Track Progress
+takeExam.translationLoading|Preparing content...
+takeExam.unignore|Unignore
+takeExam.unignoreQuestion|Unignore Quiz
+takeExam.unsolved|Fail
+takeExam.url|URL
+takeExam.voiceMode.activated|Voice mode has been activated.
+takeExam.voiceMode.browserNotSupported|This browser does not support voice features.
+takeExam.voiceMode.correct|Correct.
+takeExam.voiceMode.correctAnswer|Correct answer processed via voice!
+takeExam.voiceMode.deactivated|Voice mode has been deactivated.
+takeExam.voiceMode.incorrect|Incorrect.
+takeExam.voiceMode.incorrectAnswer|Incorrect answer processed via voice.
+textToQuestions.howItWorks|How It Works
+textToQuestions.processingStep.analyzingText|AI is analyzing the text...
+textToQuestions.processingStep.fetchingUrl|Fetching content from URL...
+textToQuestions.step2|AI analyzes the text content.
+textToQuestions.tip2|If the text is too long, only the first 5000 characters will be used.
+textToQuestions.tipsTitle|Tips
+textToQuestions.titleNote|If not entered, filename or URL domain name will be used.
+textToQuestions.urlLabel|URL
+textToQuestions.urlMode|URL Input
+textToQuestions.urlPlaceholder|https://example.com/article
+userManagement.addUser|Add User
+userManagement.deleteConfirm.deletedUsers|Deleted users: {names}
+userManagement.deleteConfirm.impact5|User profiles and personal settings
+userManagement.messages.addUserSuccess|User added successfully
+userManagement.messages.bulkDeleteSuccess|Selected users deleted successfully
+userManagement.messages.createUserSuccess|User has been created
+userManagement.messages.deleteSuccess|{count} users have been successfully deleted
+userManagement.messages.deleteUserSuccess|User deleted successfully
+userManagement.messages.downloadSuccess|Users downloaded successfully
+userManagement.messages.emailExists|Email already exists
+userManagement.messages.fieldRequired|{field} field is required
+userManagement.messages.loading|Loading users...
+userManagement.messages.updateUserSuccess|User information has been updated
+userManagement.messages.uploadSuccess|Users uploaded successfully
+userManagement.messages.usernameExists|Username already exists
+userManagement.table.actions|Actions
+userManagement.table.changePassword|Change Password
+userManagement.table.joinDate|Join Date
+userManagement.table.role|Role
+userManagement.table.roleOptions.admin|Administrator
+userManagement.table.roleOptions.generalUser|General User
+userManagement.title|User Management
+userManagement.upload.fileFormatDescription|Name, Username, Email, and Role columns are required.
+userManagement.upload.requiredColumns|Required columns: Name, Username, Email, Role
+userManagement.upload.roleOptions|Roles: Administrator, General User, user_role, admin_role
+userManagement.upload.updateNote|Existing users will be updated, new users will be created
+voiceExam.evaluationLabel|Evaluation
+voiceExam.languages.english|English
+voiceExam.languages.korean|한국어
+voiceExam.listening|Listening...
+voiceExam.microphonePermissionError|Microphone permission is required
+voiceExam.qualityIssue|Voice recognition quality is low. Please speak clearly in a quiet environment. (Consecutive {count} times)
+voiceExam.qualityWarning|Voice recognition quality is low. Please speak more clearly. ({count}/3)
+voiceExam.recognizedText|Recognized Text
+voiceExam.speaking|Speaking...
+voiceExam.startListening|Starting Answer
+voiceExam.startSpeaking|Start Speaking
+voiceExam.stopListening|Submit Answer
+voiceExam.stopSpeaking|Stop Speaking
+voiceExam.voice|Voice
+voiceExam.voices.alloy|Alloy
+voiceExam.voices.echo|Echo
+voiceExam.voices.fable|Fable
+voiceExam.voices.nova|Nova
+voiceExam.voices.onyx|Onyx
+voiceExam.voices.shimmer|Shimmer
+voiceInterview.ai|AI
+voiceInterview.aiResponse|AI Response
+voiceInterview.aiSpeaking|AI is speaking
+voiceInterview.answerNotice|After finishing your answer, say "That's all.", "Response complete", "Answer complete", "Complete", "Done" or similar phrases.
+voiceInterview.connecting|Connecting...
+voiceInterview.evaluation|Evaluation
+voiceInterview.pause|Pause
+voiceInterview.showTips|Show Tips
+voiceInterview.speaking|Speaking...
+voiceInterview.startSpeaking|Start Speaking
+voiceInterview.stopAIResponse|Stop AI Response
+voiceInterview.stopSpeaking|Stop Speaking
+voiceInterview.userSpeaking|You are speaking
+voiceInterview.waiting|Waiting
+voiceInterview.waitingForAI|Waiting for AI response...
+voiceInterview.you|You
+voiceInterview.yourAnswer|Your Answer
+voiceInterview.yourResponse|Your Response

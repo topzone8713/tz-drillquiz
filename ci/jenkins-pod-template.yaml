@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    jenkins: slave
+spec:
+  serviceAccountName: jenkins
+  nodeSelector:
+    kubernetes.io/os: linux
+  restartPolicy: Never
+  initContainers:
+  - name: set-up-jenkins-agent
+    image: jenkins/inbound-agent:3283.v92c105e0f819-4
+    command:
+    - /bin/sh
+    - -c
+    - "cp $(command -v jenkins-agent) /jenkins-agent/jenkins-agent;cp -R /usr/share/jenkins/. /jenkins-agent"
+    volumeMounts:
+    - mountPath: /jenkins-agent
+      name: jenkins-agent
+  containers:
+  - name: kubectl
+    image: doohee323/jenkins-slave
+    imagePullPolicy: IfNotPresent
+    command:
+    - sleep
+    args:
+    - "9999999"
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /home/jenkins/agent
+      name: workspace-volume
+    workingDir: /home/jenkins/agent
+  - name: jnlp
+    image: jenkins/inbound-agent:alpine
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+    volumeMounts:
+    - mountPath: /home/jenkins/agent
+      name: workspace-volume
+    - mountPath: /jenkins-agent
+      name: jenkins-agent
+      readOnly: true
+    workingDir: /home/jenkins/agent
+  - name: docker
+    image: docker:24.0.2-dind
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      privileged: true
+    env:
+    - name: DOCKER_TLS_CERTDIR
+      value: ""
+    readinessProbe:
+      exec:
+        command:
+        - docker
+        - info
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+    resources:
+      requests:
+        memory: 500Mi
+      limits:
+        memory: 2000Mi
+    volumeMounts:
+    - mountPath: /home/jenkins/agent
+      name: workspace-volume
+    workingDir: /home/jenkins/agent
+  volumes:
+  - name: jenkins-agent
+    emptyDir: {}
+  - name: workspace-volume
+    emptyDir: {}

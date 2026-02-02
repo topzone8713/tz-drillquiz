@@ -1,0 +1,36 @@
+User-agent: *
+# 기본적으로 모든 페이지 허용
+Allow: /
+
+# 공개 엔드포인트 명시적으로 허용 (Google 크롤러 접근)
+Allow: /api/health/
+Allow: /api/translations/
+Allow: /api/exams/
+Allow: /api/studies/
+Allow: /api/tag-categories/
+Allow: /api/questions/
+Allow: /api/exam/
+Allow: /api/realtime/mandatory-rules/
+Allow: /api/realtime/interview-prompt-template/
+
+# Vue.js SPA 페이지들 허용
+Allow: /getting-started
+Allow: /random-practice
+Allow: /question-files
+Allow: /login
+Allow: /register
+
+# Sitemap 위치
+Sitemap: https://us.drillquiz.com/sitemap.xml
+
+# 관리자 페이지 및 개인정보 관련 페이지 차단
+Disallow: /admin/
+Disallow: /api/users/
+Disallow: /api/user-profile/
+Disallow: /api/exam-results/
+Disallow: /api/study-progress-history/
+Disallow: /api/user-statistics/
+Disallow: /api/realtime/session/
+Disallow: /api/auth/
+Disallow: /api/token/
+Disallow: /api/google-oauth/

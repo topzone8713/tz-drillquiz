@@ -1,0 +1,58 @@
+# Velero Jenkins 백업 설정
+# Jenkins 네임스페이스와 PV를 포함한 백업
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: jenkins-backup
+  namespace: velero
+  labels:
+    app: jenkins
+    component: ci-cd
+    environment: production
+spec:
+  # 백업할 네임스페이스
+  includedNamespaces:
+  - jenkins
+  
+  # 백업할 리소스 타입
+  includedResources:
+  - deployments
+  - statefulsets
+  - services
+  - configmaps
+  - secrets
+  - persistentvolumes
+  - persistentvolumeclaims
+  - pods
+  - replicasets
+  - serviceaccounts
+  - roles
+  - rolebindings
+  
+  # 클러스터 스코프 리소스 포함
+  includeClusterResources: auto
+  
+  # 볼륨 백업 설정 (PV 데이터 포함)
+  defaultVolumesToFsBackup: true
+  snapshotVolumes: true
+  
+  # 백업 스토리지 위치
+  storageLocation: default
+  
+  # 백업 유지 기간 (30일)
+  ttl: 720h0m0s
+  
+  # 타임아웃 설정
+  csiSnapshotTimeout: 10m0s
+  itemOperationTimeout: 4h0m0s
+  
+  # 메타데이터
+  metadata:
+    labels:
+      backup-type: jenkins
+      environment: production
+      created-by: velero-jenkins-backup-script
+    annotations:
+      description: "Jenkins CI/CD system backup with PV for jenkins namespace"
+      backup-time: "{{ now | date('2006-01-02 15:04:05') }}"
+

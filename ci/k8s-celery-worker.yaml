@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drillquiz-celery-worker-GIT_BRANCH
+spec:
+  selector:
+    matchLabels:
+      app: drillquiz-celery-worker-GIT_BRANCH
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        org: tz
+        team: devops
+        environment: STAGING
+        app: drillquiz-celery-worker-GIT_BRANCH
+    spec:
+      imagePullSecrets:
+        - name: tz-registrykey
+      containers:
+      - name: celery-worker
+        image: doohee323/drillquiz:BUILD_NUMBER_PLACEHOLDER
+        imagePullPolicy: Always
+        command: ["celery", "-A", "drillquiz", "worker", "--loglevel=info", "--concurrency=2"]
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        envFrom:
+        - configMapRef:
+            name: drillquiz-configmap-GIT_BRANCH
+        - secretRef:
+            name: drillquiz-secret-GIT_BRANCH
+        env:
+        - name: CELERY_BROKER_URL
+          value: "redis://redis-cluster-drillquiz-master.devops.svc.cluster.local:6379/0"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://redis-cluster-drillquiz-master.devops.svc.cluster.local:6379/2"
+
