@@ -171,6 +171,16 @@ pipeline {
                     env.MINIO_ENDPOINT = 'http://minio.devops.svc.cluster.local:9000'
                     env.MINIO_BUCKET_NAME = 'drillquiz'
 
+                    // Chat Gateway API Key (프론트 빌드 시 위젯용. chat-gateway CHAT_GATEWAY_API_KEYS 중 DrillQuiz용 키)
+                    try {
+                        withCredentials([string(credentialsId: 'DRILLQUIZ_CHAT_GATEWAY_API_KEY', variable: 'CHAT_GATEWAY_API_KEY')]) {
+                            env.CHAT_GATEWAY_API_KEY = CHAT_GATEWAY_API_KEY
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  DRILLQUIZ_CHAT_GATEWAY_API_KEY credential not found; chat widget will be disabled in built frontend"
+                        env.CHAT_GATEWAY_API_KEY = ''
+                    }
+
                     // ArgoCD configuration
                     env.ARGOCD_ID = "tz-admin"
                     env.ARGOCD_SERVER = 'argocd.drillquiz.com'
@@ -325,6 +335,7 @@ pipeline {
                                         echo "🚀 Executing ci/k8s.sh..."
                                         export BASE_DOMAIN=${BASE_DOMAIN}
                                         export APP_NAME=${APP_NAME}
+                                        export CHAT_GATEWAY_API_KEY=${CHAT_GATEWAY_API_KEY}
                                         ./ci/k8s.sh ${BUILD_NUMBER} ${GIT_BRANCH} ${NAMESPACE} build-frontend
                                     else
                                         echo "❌ ci/k8s.sh file not found in workspace"

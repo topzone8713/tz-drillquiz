@@ -110,6 +110,7 @@
       <router-view/>
     </div>
     <AppFooter />
+    <ChatWidget />
     </div>
   </div>
 </template>
@@ -121,12 +122,14 @@
 import { debugLog } from '@/utils/debugUtils'
 import { isAdmin, hasStudyAdminRole } from '@/utils/permissionUtils'
 import AppFooter from '@/components/Footer.vue'
+import ChatWidget from '@/components/ChatWidget.vue'
 import authService from '@/services/authService'
 import { authAPI } from '@/services/api'
 
 export default {
   components: {
-    AppFooter
+    AppFooter,
+    ChatWidget
   },
   metaInfo() {
     // 현재 언어에 따라 동적으로 메타 정보 생성

@@ -647,11 +647,21 @@ setup_environment() {
         SECRET_SUFFIX="main"
     fi
     SECRET_SUFFIX=$(echo "${SECRET_SUFFIX}" | sed 's|/|-|g')
+
+    # Chat Gateway URL (운영=chat.drillquiz.com, QA=chat-qa, 개발=chat-dev)
+    if [ "${clean_branch}" = "main" ]; then
+        CHAT_GATEWAY_DOMAIN="chat.${BASE_DOMAIN}"
+    elif [ "${clean_branch}" = "qa" ]; then
+        CHAT_GATEWAY_DOMAIN="chat-qa.${BASE_DOMAIN}"
+    else
+        CHAT_GATEWAY_DOMAIN="chat-dev.${BASE_DOMAIN}"
+    fi
     
     log_info "✅ Environment setup completed:"
     log_info "  STAGING: ${STAGING}"
     log_info "  ARGOCD_FOLDER: ${ARGOCD_FOLDER}"
     log_info "  DOMAIN: ${DOMAIN}"
+    log_info "  CHAT_GATEWAY_DOMAIN: ${CHAT_GATEWAY_DOMAIN}"
     log_info "  DB_HOST: ${DB_HOST}"
     log_info "  SECRET_SUFFIX: ${SECRET_SUFFIX}"
 }
@@ -665,6 +675,8 @@ build_frontend() {
     
     # Environment variable file substitution (macOS compatible)
     [[ -f "env-frontend" ]] && sed -i.bak "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" env-frontend && rm -f env-frontend.bak
+    [[ -f "env-frontend" ]] && sed -i.bak "s/CHAT_GATEWAY_DOMAIN_PLACEHOLDER/${CHAT_GATEWAY_DOMAIN}/g" env-frontend && rm -f env-frontend.bak
+    [[ -f "env-frontend" ]] && sed -i.bak "s/CHAT_GATEWAY_API_KEY_PLACEHOLDER/${CHAT_GATEWAY_API_KEY:-}/g" env-frontend && rm -f env-frontend.bak
     [[ -f "env" ]] && sed -i.bak "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" env && rm -f env.bak
     [[ -f "package.json" ]] && sed -i.bak "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" package.json && rm -f package.json.bak
     [[ -f "env" ]] && sed -i.bak "s|POSTGRES_HOST=.*|POSTGRES_HOST=${DB_HOST}|g" env && rm -f env.bak
